@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 int main(int argc, char const *argv[]) {
-    int height;
+    //change height to zerooooooooooooooooooooooooooooooooooooooooooooooooooo
+    int height = 1;
     char *datafile;
     char *pattern;
     int skew = 0;       //flag for skew searching (initialized to false)
@@ -25,6 +27,25 @@ int main(int argc, char const *argv[]) {
             skew = 1;
         }
     }
+
+    //check if valid height
+    if (height < 1) {
+        printf("Height should be at least 1\n");
+        return 1;
+    }
+
     printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
+    int pid = fork();
+    if (pid == 0) {
+        printf("I am child\n");
+        char *args[]={"./test",NULL}; 
+        execvp(args[0],args);
+    }
+    else {
+        printf("I am parent\n");
+    }
+
+    printf("This is still root program %d %d\n", getpid(), pid);
+
     return 0;
 }
