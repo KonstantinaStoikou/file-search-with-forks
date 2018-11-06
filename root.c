@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 
 int main(int argc, char const *argv[]) {
@@ -36,10 +37,12 @@ int main(int argc, char const *argv[]) {
 
     printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
     int pid = fork();
+    char hi[] = "hello";
     if (pid == 0) {
         printf("I am child\n");
-        char *args[]={"./test",NULL}; 
-        execvp(args[0],args);
+        char child_program[] = "./test";
+        // execvp(args[0],args);
+        execlp(child_program, hi, (char *)0);
     }
     else {
         printf("I am parent\n");
