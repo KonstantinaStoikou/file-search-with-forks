@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 int main(int argc, char const *argv[]) {
     //change height to zerooooooooooooooooooooooooooooooooooooooooooooooooooo
@@ -28,7 +29,6 @@ int main(int argc, char const *argv[]) {
             skew = 1;
         }
     }
-
     //check if valid height
     if (height < 1) {
         printf("Height should be at least 1\n");
@@ -36,19 +36,21 @@ int main(int argc, char const *argv[]) {
     }
 
     printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
-    int pid = fork();
-    char hi[] = "hello";
-    if (pid == 0) {
-        printf("I am child\n");
-        char child_program[] = "./test";
-        // execvp(args[0],args);
-        execlp(child_program, hi, (char *)0);
-    }
-    else {
-        printf("I am parent\n");
-    }
 
-    printf("This is still root program %d %d\n", getpid(), pid);
+    //fork splitter/merger processes
+    int pid = fork();
+
+    if (pid == 0) {     //if child process
+        //make height from integer to string and pass it to splitter/merger
+        //for convenience I assume height is maximum a 4 digit number
+        char heightStr[4];
+        sprintf(heightStr, "%d", height);
+        execlp("./splitter_merger", heightStr, NULL);
+    }
+    else {             //if parent process
+        //wait for child to finish
+        wait(NULL);
+    }
 
     return 0;
 }
