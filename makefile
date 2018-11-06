@@ -1,6 +1,4 @@
-all: 	searcher\
-	splitter_merger \
-	root
+all: 	searcher splitter_merger root
 
 searcher: searcher.c
 	gcc -g searcher.c -o searcher
@@ -13,7 +11,4 @@ root: root.c
 
 
 clean:
-	rm -f 	\
-	searcher \
-	splitter_merger \
-	root
+	rm -f searcher splitter_merger root

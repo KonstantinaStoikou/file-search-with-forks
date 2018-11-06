@@ -36,9 +36,9 @@ int main(int argc, char const *argv[]) {
     }
 
     printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
-
+    printf("This is root %d\n", getpid());
     //fork splitter/merger processes
-    int pid = fork();
+    pid_t pid = fork();
 
     if (pid == 0) {     //if child process
         //make height from integer to string and pass it to splitter/merger
@@ -46,6 +46,10 @@ int main(int argc, char const *argv[]) {
         char heightStr[4];
         sprintf(heightStr, "%d", height);
         execlp("./splitter_merger", heightStr, NULL);
+    }
+    else if (pid == -1) {
+        perror("fork");
+        exit(1);
     }
     else {             //if parent process
         //wait for child to finish
