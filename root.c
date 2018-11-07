@@ -6,13 +6,12 @@
 #include <sys/wait.h>
 
 int main(int argc, char const *argv[]) {
-    //change height to zerooooooooooooooooooooooooooooooooooooooooooooooooooo
-    int height = 1;
+    int height = 0;
     char *datafile;
     char *pattern;
-    int skew = 0;       //flag for skew searching (initialized to false)
+    int skew = 0;       // flag for skew searching (initialized to false)
 
-    //read command line arguments and initialize variables respectively
+    // read command line arguments and initialize variables respectively
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0) {
             height = atoi(argv[i+1]);
@@ -29,7 +28,7 @@ int main(int argc, char const *argv[]) {
             skew = 1;
         }
     }
-    //check if valid height
+    // check if valid height
     if (height < 1) {
         printf("Height should be at least 1\n");
         return 1;
@@ -37,12 +36,12 @@ int main(int argc, char const *argv[]) {
 
     printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
     printf("This is root %d\n", getpid());
-    //fork splitter/merger processes
+    // fork splitter/merger processes
     pid_t pid = fork();
 
-    if (pid == 0) {     //if child process
-        //make height and skew from integer to string and pass it to splitter/merger
-        //for convenience I assume height is maximum a 4 digit number
+    if (pid == 0) {     // if child process
+        // make height and skew from integer to string and pass it to splitter/merger
+        // for convenience I assume height is maximum a 4 digit number
         char heightStr[4];
         sprintf(heightStr, "%d", height);
         char skewStr[4];
@@ -53,8 +52,8 @@ int main(int argc, char const *argv[]) {
         perror("fork");
         exit(1);
     }
-    else {             //if parent process
-        //wait for child to finish
+    else {             // if parent process
+        // wait for child to finish
         wait(NULL);
     }
 

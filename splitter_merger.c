@@ -13,11 +13,11 @@ int main (int argc, char const *argv[]) {
     printf("%d\n", height);
 
     if (height == 1) {
-        //fork two searchers
+        // fork two searchers
         for (int i = 0; i < 2; i++) {
             pid_t pid = fork();
 
-            if (pid == 0) {     //if child process
+            if (pid == 0) {     // if child process
                 char skewStr[4];
                 sprintf(skewStr, "%d", skew);
                 execlp("./searcher", datafile, skewStr, NULL);
@@ -38,13 +38,13 @@ int main (int argc, char const *argv[]) {
     }
 
     height--;
-    //fork two new splitter_mergers
+    // fork two new splitter_mergers
     for (int i = 0; i < 2; i++) {
         pid_t pid = fork();
 
-        if (pid == 0) {     //if child process
-            //make height and skew from integer to string and pass it to splitter/merger
-            //for convenience I assume height is maximum a 4 digit number
+        if (pid == 0) {     // if child process
+            // make height and skew from integer to string and pass it to splitter/merger
+            // for convenience I assume height is maximum a 4 digit number
             char heightStr[4];
             sprintf(heightStr, "%d", height);
             char skewStr[4];
