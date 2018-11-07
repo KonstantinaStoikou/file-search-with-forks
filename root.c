@@ -41,11 +41,13 @@ int main(int argc, char const *argv[]) {
     pid_t pid = fork();
 
     if (pid == 0) {     //if child process
-        //make height from integer to string and pass it to splitter/merger
+        //make height and skew from integer to string and pass it to splitter/merger
         //for convenience I assume height is maximum a 4 digit number
         char heightStr[4];
         sprintf(heightStr, "%d", height);
-        execlp("./splitter_merger", heightStr, NULL);
+        char skewStr[4];
+        sprintf(skewStr, "%d", skew);
+        execlp("./splitter_merger", heightStr, datafile, skewStr, NULL);
     }
     else if (pid == -1) {
         perror("fork");
