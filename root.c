@@ -69,10 +69,9 @@ int main(int argc, char const *argv[]) {
         sprintf(skewStr, "%d", skew);
         char numOfrecordsStr[4];
         sprintf(numOfrecordsStr, "%d", numOfrecords);
-        // position where each searchers will start to read the file
+        // position where each searcher will start to read the file
         // position will change each time a splitter_merger is created
         char position[] = "0";
-        printf("%s\n", heightStr);
         execlp("./splitter_merger", heightStr, datafile, skewStr, position, numOfrecordsStr, NULL);
     }
     else if (pid == -1) {

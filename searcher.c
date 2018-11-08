@@ -9,6 +9,9 @@ int main (int argc, char const *argv[]) {
     char *datafile = malloc(sizeof(strlen(argv[0]) + 1));
     strcpy(datafile, argv[0]);
     int skew = atoi(argv[1]);
+    int position = atoi(argv[2]);
+    int numbrecords = atoi(argv[3]);
+    printf("numofrecords = %d, position = #%d\n", numbrecords, position);
 /*
     FILE *fpb;
     Record rec;
