@@ -36,7 +36,6 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
 
-    printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
     printf("This is root %d\n", getpid());
 
     // open file and check number of records
