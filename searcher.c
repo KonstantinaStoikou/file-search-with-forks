@@ -10,13 +10,12 @@ int main (int argc, char const *argv[]) {
     strcpy(datafile, argv[0]);
     int skew = atoi(argv[1]);
     int position = atoi(argv[2]);
-    int numbrecords = atoi(argv[3]);
-    printf("numofrecords = %d, position = #%d\n", numbrecords, position);
-/*
+    int numOfrecords = atoi(argv[3]);
+    printf("numofrecords = %d, position = #%d\n", numOfrecords, position);
+
     FILE *fpb;
     Record rec;
     long lSize;
-    int numOfrecords, i;
 
     fpb = fopen(argv[0], "rb");
     if (fpb == NULL) {
@@ -25,17 +24,11 @@ int main (int argc, char const *argv[]) {
     }
 
     // check number of records
-    fseek(fpb, 0, SEEK_END);
-    lSize = ftell(fpb);
-    rewind(fpb);
-    numOfrecords = (int) lSize / sizeof(rec);
+    fseek(fpb, position, SEEK_SET);
 
-    printf("Records found in file %d of size %ld \n", numOfrecords, sizeof(rec));
-
-    for(i = 0; i < numOfrecords; i++) {
+    for(int i = 0; i < numOfrecords; i++) {
         fread(&rec, sizeof(rec), 1, fpb);
         int cur_pos = ftell(fpb);
-        printf("%d\n", cur_pos);
         printf("%ld %s %s  %s %d %s %s %-9.2f\n", \
         rec.custid, rec.LastName, rec.FirstName, \
         rec.Street, rec.HouseID, rec.City, rec.postcode, \
@@ -43,6 +36,6 @@ int main (int argc, char const *argv[]) {
     }
 
     fclose (fpb);
-*/
+
     exit(0);
 }
