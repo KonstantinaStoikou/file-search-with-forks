@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <math.h>
 #include "record.h"
 
 int main (int argc, char const *argv[]) {
@@ -14,31 +15,44 @@ int main (int argc, char const *argv[]) {
     int position = atoi(argv[3]);
     int numOfrecords = atoi(argv[4]);
     int mod;
-    // if (skew == 0) {
-    mod = numOfrecords % 2;
-    numOfrecords /= 2;
-    // }
-    // else {}
+    int x1, x2;
+
+    if (skew == 0) {
+        mod = numOfrecords % 2;
+        numOfrecords /= 2;
+    } else {
+        // argv[5], argc[6] will be passed only if skew == 1
+        x1 = atoi(argv[5]);
+        x2 = atoi(argv[6]);
+    }
     printf("height = %d\n", height);
 
     if (height == 1) {
         // fork two searchers
-        for (int i = 0; i < 2; i++) {
+        for (int i = 1; i <= 2; i++) {
             pid_t pid = fork();
-
             if (pid == 0) {     // if child process
-                // make integers to strings and pass them to splitter/merger
-                // for convenience I assume numOfrecords is maximum a 10 digit number
-                // and position is maximum a 100 digit number
                 char numOfrecordsStr[10];
-                // if last forked searcher add to numOfrecords the remainder of the division
-                if (i == 1) {
-                    sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
+                if (skew == 1) {
+                    int sum = atoi(argv[7]);
+                    if (i == 1) {
+                        sprintf(numOfrecordsStr, "%d", numOfrecords * x1 / sum);
+                        printf("%s\n", numOfrecordsStr);
+                    } else {
+                        sprintf(numOfrecordsStr, "%d", numOfrecords * x2 / sum);
+                        printf("%s\n", numOfrecordsStr);
+                    }
                 } else {
-                    sprintf(numOfrecordsStr, "%d", numOfrecords);
+                    if (i == 2) {
+                        sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
+                    } else {
+                        sprintf(numOfrecordsStr, "%d", numOfrecords);
+                    }
                 }
+
                 char positionStr[100];
                 sprintf(positionStr, "%d", position);
+
                 // arguments: datafile, skew, position, numOfrecords
                 execlp("./searcher", datafile, argv[2], positionStr, numOfrecordsStr, NULL);
             }
@@ -47,9 +61,6 @@ int main (int argc, char const *argv[]) {
                 exit(1);
             }
 
-            // add to last forked searchers the remainder of the division
-            //if skeeeeeeewww
-            numOfrecords += numOfrecords % 2;
             //the position will increase by the number of records
             position = position + numOfrecords * sizeof(Record);
 
@@ -64,7 +75,7 @@ int main (int argc, char const *argv[]) {
 
     height--;
     // fork two new splitter_mergers
-    for (int i = 0; i < 2; i++) {
+    for (int i = 1; i <= 2; i++) {
         pid_t pid = fork();
 
         if (pid == 0) {     // if child process
@@ -77,15 +88,31 @@ int main (int argc, char const *argv[]) {
 
             char numOfrecordsStr[10];
             // if last forked splitter_merger add to numOfrecords the remainder of the division
-            if (i == 1) {
+            if (i == 2 && skew == 0) {
                 sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
             } else {
                 sprintf(numOfrecordsStr, "%d", numOfrecords);
             }
             char positionStr[100];
             sprintf(positionStr, "%d", position);
-            // arguments: height, datafile, skew, position, numOfrecords
-            execlp("./splitter_merger", heightStr, argv[1], argv[2], positionStr, numOfrecordsStr, NULL);
+            if (skew == 0) {
+                // arguments: height, datafile, skew, position, numOfrecords
+                execlp("./splitter_merger", heightStr, argv[1], argv[2], positionStr, numOfrecordsStr, NULL);
+            } else {
+                char x1Str[3];
+                char x2Str[3];
+                // e.g. for starting range 1-8 first forked splitter_merger will get 1-4 and second 5-8
+                if (i == 1) {
+                    sprintf(x1Str, "%d", x1);
+                    sprintf(x2Str, "%d", x2 / 2);
+                } else {
+                    sprintf(x1Str, "%d", x2 / 2 + 1);
+                    sprintf(x2Str, "%d", x2);
+                }
+
+                // arguments: height, datafile, skew, position, numOfrecords, x1Str, x2Str
+                execlp("./splitter_merger", heightStr, argv[1], argv[2], positionStr, numOfrecordsStr, x1Str, x2Str, argv[7], NULL);
+            }
         }
         else if (pid == -1) {
             perror("fork");
