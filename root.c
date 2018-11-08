@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "record.h"
 
 int main(int argc, char const *argv[]) {
     int height = 0;
@@ -36,17 +37,43 @@ int main(int argc, char const *argv[]) {
 
     printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
     printf("This is root %d\n", getpid());
+
+    // open file and check number of records
+    FILE *fpb;
+    Record rec;
+    long lSize;
+    int numOfrecords;
+
+    fpb = fopen(datafile, "rb");
+    if (fpb == NULL) {
+        perror("Cannot open binary file: ");
+        exit(1);
+    }
+    // check number of records
+    fseek(fpb, 0, SEEK_END);
+    lSize = ftell(fpb);
+    rewind(fpb);
+    numOfrecords = (int) lSize / sizeof(rec);
+    printf("Records found in file %d of size %ld \n", numOfrecords, sizeof(rec));
+    fclose(fpb);
+
     // fork splitter/merger processes
     pid_t pid = fork();
 
     if (pid == 0) {     // if child process
-        // make height and skew from integer to string and pass it to splitter/merger
+        // make integers to strings and pass them to splitter/merger
         // for convenience I assume height is maximum a 4 digit number
         char heightStr[4];
         sprintf(heightStr, "%d", height);
         char skewStr[4];
         sprintf(skewStr, "%d", skew);
-        execlp("./splitter_merger", heightStr, datafile, skewStr, NULL);
+        char numOfrecordsStr[4];
+        sprintf(numOfrecordsStr, "%d", numOfrecords);
+        // position where each searchers will start to read the file
+        // position will change each time a splitter_merger is created
+        char position[] = "0";
+        printf("%s\n", heightStr);
+        execlp("./splitter_merger", heightStr, datafile, skewStr, position, numOfrecordsStr, NULL);
     }
     else if (pid == -1) {
         perror("fork");
@@ -56,6 +83,5 @@ int main(int argc, char const *argv[]) {
         // wait for child to finish
         wait(NULL);
     }
-
     return 0;
 }

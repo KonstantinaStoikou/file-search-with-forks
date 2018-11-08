@@ -9,7 +9,7 @@ int main (int argc, char const *argv[]) {
     char *datafile = malloc(sizeof(strlen(argv[0]) + 1));
     strcpy(datafile, argv[0]);
     int skew = atoi(argv[1]);
-
+/*
     FILE *fpb;
     Record rec;
     long lSize;
@@ -27,10 +27,12 @@ int main (int argc, char const *argv[]) {
     rewind(fpb);
     numOfrecords = (int) lSize / sizeof(rec);
 
-    printf("Records found in file %d \n", numOfrecords);
+    printf("Records found in file %d of size %ld \n", numOfrecords, sizeof(rec));
 
     for(i = 0; i < numOfrecords; i++) {
         fread(&rec, sizeof(rec), 1, fpb);
+        int cur_pos = ftell(fpb);
+        printf("%d\n", cur_pos);
         printf("%ld %s %s  %s %d %s %s %-9.2f\n", \
         rec.custid, rec.LastName, rec.FirstName, \
         rec.Street, rec.HouseID, rec.City, rec.postcode, \
@@ -38,6 +40,6 @@ int main (int argc, char const *argv[]) {
     }
 
     fclose (fpb);
-
+*/
     exit(0);
 }
