@@ -25,7 +25,6 @@ int main (int argc, char const *argv[]) {
     }
 
     printf("height = %d\n", height);
-    printf("start %d, end %d, positon %d\n", start, end, position);
 
     if (height == 1) {
         // fork two searchers
@@ -51,7 +50,23 @@ int main (int argc, char const *argv[]) {
                     if (i == 1) {
                         sprintf(numOfrecordsStr, "%d", numOfrecords * start / sum);
                     } else {
-                        sprintf(numOfrecordsStr, "%d", numOfrecords * end / sum);
+                        int endSum = 0;
+                        for (int j = 1; j <= end; j++) {
+                            endSum += j;
+                        }
+                        // if this is the last searcher created pass all remaining records
+                        if (endSum == sum) {
+                            int remaining = numOfrecords;
+                            // for each searcher that has been created find how much records
+                            // has read and substract them from the initial number of records
+                            // to find how many they remain because of modulos
+                            for (int j = 1; j <= end; j++) {
+                                remaining -= numOfrecords * j / sum;
+                            }
+                            sprintf(numOfrecordsStr, "%d", (numOfrecords * end / sum) + remaining);
+                        } else {
+                            sprintf(numOfrecordsStr, "%d", numOfrecords * end / sum);
+                        }
                     }
                 }
 
@@ -142,14 +157,14 @@ int main (int argc, char const *argv[]) {
             int rangeSum = 0;
             if (i == 1) {
                 for (int j = start; j <= start - 1 + (end - start + 1) / 2; j++) {
-                    rangeSum += j;
+                    rangeSum += numOfrecords * j / sum;
                 }
             } else {
                 for (int j = end + 1 - (end - start + 1) / 2; j <= end; j++) {
-                    rangeSum += j;
+                    rangeSum +=  numOfrecords * j / sum;
                 }
             }
-            position = position + (numOfrecords * rangeSum / sum) * sizeof(Record);
+            position = position + rangeSum * sizeof(Record);
         }
 
         pid_t wpid;
