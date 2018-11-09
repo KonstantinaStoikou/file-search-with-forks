@@ -13,17 +13,23 @@ int main (int argc, char const *argv[]) {
     int skew = atoi(argv[2]);
     int position = atoi(argv[3]);
     int numOfrecords = atoi(argv[4]);
-    int mod;
-    // if (skew == 0) {
-    mod = numOfrecords % 2;
-    numOfrecords /= 2;
-    // }
-    // else {}
+    int mod, start, end, sum;
+
+    if (skew == 0) {
+        mod = numOfrecords % 2;
+        numOfrecords /= 2;
+    } else {
+        start = atoi(argv[5]);
+        end = atoi(argv[6]);
+        sum = atoi(argv[7]);
+    }
+
     printf("height = %d\n", height);
+    printf("start %d, end %d, positon %d\n", start, end, position);
 
     if (height == 1) {
         // fork two searchers
-        for (int i = 0; i < 2; i++) {
+        for (int i = 1; i <= 2; i++) {
             pid_t pid = fork();
 
             if (pid == 0) {     // if child process
@@ -31,14 +37,24 @@ int main (int argc, char const *argv[]) {
                 // for convenience I assume numOfrecords is maximum a 10 digit number
                 // and position is maximum a 100 digit number
                 char numOfrecordsStr[10];
-                // if last forked searcher add to numOfrecords the remainder of the division
-                if (i == 1) {
-                    sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
-                } else {
-                    sprintf(numOfrecordsStr, "%d", numOfrecords);
-                }
                 char positionStr[100];
                 sprintf(positionStr, "%d", position);
+                // if last forked searcher add to numOfrecords the remainder of the division
+                if (skew == 0) {
+                    if (i == 2) {
+                        sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
+                    } else {
+                        sprintf(numOfrecordsStr, "%d", numOfrecords);
+                    }
+                }
+                else {
+                    if (i == 1) {
+                        sprintf(numOfrecordsStr, "%d", numOfrecords * start / sum);
+                    } else {
+                        sprintf(numOfrecordsStr, "%d", numOfrecords * end / sum);
+                    }
+                }
+
                 // arguments: datafile, skew, position, numOfrecords
                 execlp("./searcher", datafile, argv[2], positionStr, numOfrecordsStr, NULL);
             }
@@ -47,11 +63,17 @@ int main (int argc, char const *argv[]) {
                 exit(1);
             }
 
-            // add to last forked searchers the remainder of the division
-            //if skeeeeeeewww
-            numOfrecords += numOfrecords % 2;
-            //the position will increase by the number of records
-            position = position + numOfrecords * sizeof(Record);
+            if (skew == 0) {
+                //the position will increase by the number of records
+                position = position + numOfrecords * sizeof(Record);
+            }
+            else {
+                if (i == 1) {
+                    position = position + (numOfrecords * start / sum) * sizeof(Record);
+                } else {
+                    position = position + (numOfrecords * end / sum) * sizeof(Record);
+                }
+            }
 
             pid_t wpid;
             int status = 0;
@@ -64,7 +86,9 @@ int main (int argc, char const *argv[]) {
 
     height--;
     // fork two new splitter_mergers
-    for (int i = 0; i < 2; i++) {
+    for (int i = 1; i <= 2; i++) {
+        int newStart, newEnd;
+
         pid_t pid = fork();
 
         if (pid == 0) {     // if child process
@@ -74,26 +98,59 @@ int main (int argc, char const *argv[]) {
             // and position is maximum a 100 digit number
             char heightStr[4];
             sprintf(heightStr, "%d", height);
-
-            char numOfrecordsStr[10];
-            // if last forked splitter_merger add to numOfrecords the remainder of the division
-            if (i == 1) {
-                sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
-            } else {
-                sprintf(numOfrecordsStr, "%d", numOfrecords);
-            }
             char positionStr[100];
             sprintf(positionStr, "%d", position);
-            // arguments: height, datafile, skew, position, numOfrecords
-            execlp("./splitter_merger", heightStr, argv[1], argv[2], positionStr, numOfrecordsStr, NULL);
+
+            char numOfrecordsStr[10];
+            if (skew == 0) {
+                // if last forked splitter_merger add to numOfrecords the remainder of the division
+                if (i == 2) {
+                    sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
+                } else {
+                    sprintf(numOfrecordsStr, "%d", numOfrecords);
+                }
+                // arguments: height, datafile, skew, position, numOfrecords
+                execlp("./splitter_merger", heightStr, argv[1], argv[2], positionStr, numOfrecordsStr, NULL);
+            }
+            else {
+                if (i == 1) {
+                    newStart = start;
+                    newEnd = start - 1 + (end - start + 1) / 2;
+                } else {
+                    newStart = end + 1 - (end - start + 1) / 2;
+                    newEnd = end;
+                }
+                char newStartStr[3];
+                sprintf(newStartStr, "%d", newStart);
+                char newEndStr[3];
+                sprintf(newEndStr, "%d", newEnd);
+                sprintf(numOfrecordsStr, "%d", numOfrecords);
+                // arguments: height, datafile, skew, position, numOfrecords, start, end, sum
+                execlp("./splitter_merger", heightStr, argv[1], argv[2], positionStr, numOfrecordsStr, newStartStr, newEndStr, argv[7], NULL);
+            }
         }
         else if (pid == -1) {
             perror("fork");
             exit(1);
         }
 
-        //the position will increase by the number of records
-        position = position + numOfrecords * sizeof(Record);
+        if (skew == 0) {
+            //the position will increase by the number of records
+            position = position + numOfrecords * sizeof(Record);
+        }
+        else {
+            int rangeSum = 0;
+            if (i == 1) {
+                for (int j = start; j <= start - 1 + (end - start + 1) / 2; j++) {
+                    rangeSum += j;
+                }
+            } else {
+                for (int j = end + 1 - (end - start + 1) / 2; j <= end; j++) {
+                    rangeSum += j;
+                }
+            }
+            position = position + (numOfrecords * rangeSum / sum) * sizeof(Record);
+        }
 
         pid_t wpid;
         int status = 0;

@@ -87,7 +87,9 @@ int main(int argc, char const *argv[]) {
             for (int i = 1; i <= pow(2, height); i++) {
                 sum += i;
             }
-            execlp("./splitter_merger", heightStr, datafile, skewStr, position, numOfrecordsStr, start, end, sum, NULL);
+            char sumStr[4];
+            sprintf(sumStr, "%d", sum);
+            execlp("./splitter_merger", heightStr, datafile, skewStr, position, numOfrecordsStr, start, end, sumStr, NULL);
         }
     }
     else if (pid == -1) {
