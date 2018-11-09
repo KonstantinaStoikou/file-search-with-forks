@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <math.h>
 #include "record.h"
 
 int main(int argc, char const *argv[]) {
@@ -72,7 +73,22 @@ int main(int argc, char const *argv[]) {
         // position where each searcher will start to read the file
         // position will change each time a splitter_merger is created
         char position[] = "0";
-        execlp("./splitter_merger", heightStr, datafile, skewStr, position, numOfrecordsStr, NULL);
+
+        if (skew == 0) {
+            execlp("./splitter_merger", heightStr, datafile, skewStr, position, numOfrecordsStr, NULL);
+        } else {
+            // if skew == 1 pass extra parameters that show range of searchers each splitter has
+            // and sum of numbers till 2^h
+            char start[] = "1";
+            char end[3];
+            sprintf(end, "%d", (int)pow(2, height));
+            // find sum from 1 to 2^h
+            int sum = 0;
+            for (int i = 1; i <= pow(2, height); i++) {
+                sum += i;
+            }
+            execlp("./splitter_merger", heightStr, datafile, skewStr, position, numOfrecordsStr, start, end, sum, NULL);
+        }
     }
     else if (pid == -1) {
         perror("fork");
