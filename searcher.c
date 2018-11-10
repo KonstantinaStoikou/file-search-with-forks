@@ -31,10 +31,14 @@ int main (int argc, char const *argv[]) {
     for(int i = 0; i < numOfrecords; i++) {
         fread(&rec, sizeof(rec), 1, fpb);
         int cur_pos = ftell(fpb);
-        printf("%ld %s %s  %s %d %s %s %-9.2f\n", \
+        char str[200];
+        sprintf(str, "%ld %s %s  %s %d %s %s %-9.2f\n", \
         rec.custid, rec.LastName, rec.FirstName, \
         rec.Street, rec.HouseID, rec.City, rec.postcode, \
         rec.amount);
+        if (strstr(str, pattern) != NULL) {
+            printf("%s\n", str);
+        }
     }
 
     fclose (fpb);
