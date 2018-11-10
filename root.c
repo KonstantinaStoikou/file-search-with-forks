@@ -47,7 +47,7 @@ int main(int argc, char const *argv[]) {
 
     fpb = fopen(datafile, "rb");
     if (fpb == NULL) {
-        perror("Cannot open binary file: ");
+        perror("Cannot open binary file");
         exit(1);
     }
     // check number of records

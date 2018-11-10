@@ -26,8 +26,7 @@ int main (int argc, char const *argv[]) {
         sum = atoi(argv[8]);
     }
 
-    printf("height = %d, pattern = %s, skew = %d, position = %d,numOfrecords = %d\n", \
-    height, pattern, skew, position, numOfrecords);
+    printf("height = %d\n", height);
 
     if (height == 1) {
         // fork two searchers
@@ -144,7 +143,7 @@ int main (int argc, char const *argv[]) {
                 sprintf(newEndStr, "%d", newEnd);
                 sprintf(numOfrecordsStr, "%d", numOfrecords);
                 // arguments: height, datafile, pattern, skew, position, numOfrecords, start, end, sum
-                execlp("./splitter_merger", heightStr, argv[1], pattern, argv[3], positionStr, numOfrecordsStr, newStartStr, newEndStr, argv[7], NULL);
+                execlp("./splitter_merger", heightStr, argv[1], pattern, argv[3], positionStr, numOfrecordsStr, newStartStr, newEndStr, argv[8], NULL);
             }
         }
         else if (pid == -1) {
