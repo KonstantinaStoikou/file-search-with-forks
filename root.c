@@ -75,7 +75,7 @@ int main(int argc, char const *argv[]) {
         char position[] = "0";
 
         if (skew == 0) {
-            execlp("./splitter_merger", heightStr, datafile, skewStr, position, numOfrecordsStr, NULL);
+            execlp("./splitter_merger", heightStr, datafile, pattern, skewStr, position, numOfrecordsStr, NULL);
         } else {
             // if skew == 1 pass extra parameters that show range of searchers each splitter has
             // and sum of numbers till 2^h
@@ -89,7 +89,7 @@ int main(int argc, char const *argv[]) {
             }
             char sumStr[4];
             sprintf(sumStr, "%d", sum);
-            execlp("./splitter_merger", heightStr, datafile, skewStr, position, numOfrecordsStr, start, end, sumStr, NULL);
+            execlp("./splitter_merger", heightStr, datafile, pattern, skewStr, position, numOfrecordsStr, start, end, sumStr, NULL);
         }
     }
     else if (pid == -1) {

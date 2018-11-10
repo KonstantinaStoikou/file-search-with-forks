@@ -8,9 +8,11 @@ int main (int argc, char const *argv[]) {
     printf("This is the Searcher program %d with parent %d\n", getpid(), getppid());
     char *datafile = malloc(sizeof(strlen(argv[0]) + 1));
     strcpy(datafile, argv[0]);
-    int skew = atoi(argv[1]);
-    int position = atoi(argv[2]);
-    int numOfrecords = atoi(argv[3]);
+    char *pattern = malloc(sizeof(strlen(argv[1]) + 1));
+    strcpy(pattern, argv[1]);
+    int skew = atoi(argv[2]);
+    int position = atoi(argv[3]);
+    int numOfrecords = atoi(argv[4]);
     printf("numofrecords = %d, position = #%d\n", numOfrecords, position);
 
     FILE *fpb;

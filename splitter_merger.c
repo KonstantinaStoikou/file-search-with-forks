@@ -10,21 +10,24 @@ int main (int argc, char const *argv[]) {
     int height = atoi(argv[0]);
     char *datafile = malloc(sizeof(strlen(argv[1]) + 1));
     strcpy(datafile, argv[1]);
-    int skew = atoi(argv[2]);
-    int position = atoi(argv[3]);
-    int numOfrecords = atoi(argv[4]);
+    char *pattern = malloc(sizeof(strlen(argv[2]) + 1));
+    strcpy(pattern, argv[2]);
+    int skew = atoi(argv[3]);
+    int position = atoi(argv[4]);
+    int numOfrecords = atoi(argv[5]);
     int mod, start, end, sum;
 
     if (skew == 0) {
         mod = numOfrecords % 2;
         numOfrecords /= 2;
     } else {
-        start = atoi(argv[5]);
-        end = atoi(argv[6]);
-        sum = atoi(argv[7]);
+        start = atoi(argv[6]);
+        end = atoi(argv[7]);
+        sum = atoi(argv[8]);
     }
 
-    printf("height = %d\n", height);
+    printf("height = %d, pattern = %s, skew = %d, position = %d,numOfrecords = %d\n", \
+    height, pattern, skew, position, numOfrecords);
 
     if (height == 1) {
         // fork two searchers
@@ -70,8 +73,8 @@ int main (int argc, char const *argv[]) {
                     }
                 }
 
-                // arguments: datafile, skew, position, numOfrecords
-                execlp("./searcher", datafile, argv[2], positionStr, numOfrecordsStr, NULL);
+                // arguments: datafile, pattern, skew, position, numOfrecords
+                execlp("./searcher", datafile, pattern, argv[3], positionStr, numOfrecordsStr, NULL);
             }
             else if (pid == -1) {
                 perror("fork");
@@ -124,8 +127,8 @@ int main (int argc, char const *argv[]) {
                 } else {
                     sprintf(numOfrecordsStr, "%d", numOfrecords);
                 }
-                // arguments: height, datafile, skew, position, numOfrecords
-                execlp("./splitter_merger", heightStr, argv[1], argv[2], positionStr, numOfrecordsStr, NULL);
+                // arguments: height, datafile, pattern, skew, position, numOfrecords
+                execlp("./splitter_merger", heightStr, argv[1], pattern, argv[3], positionStr, numOfrecordsStr, NULL);
             }
             else {
                 if (i == 1) {
@@ -140,8 +143,8 @@ int main (int argc, char const *argv[]) {
                 char newEndStr[3];
                 sprintf(newEndStr, "%d", newEnd);
                 sprintf(numOfrecordsStr, "%d", numOfrecords);
-                // arguments: height, datafile, skew, position, numOfrecords, start, end, sum
-                execlp("./splitter_merger", heightStr, argv[1], argv[2], positionStr, numOfrecordsStr, newStartStr, newEndStr, argv[7], NULL);
+                // arguments: height, datafile, pattern, skew, position, numOfrecords, start, end, sum
+                execlp("./splitter_merger", heightStr, argv[1], pattern, argv[3], positionStr, numOfrecordsStr, newStartStr, newEndStr, argv[7], NULL);
             }
         }
         else if (pid == -1) {
