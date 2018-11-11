@@ -1,0 +1,1 @@
+int findNumOfRecords(char *datafile);

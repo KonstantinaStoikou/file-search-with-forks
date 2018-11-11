@@ -31,13 +31,14 @@ int main (int argc, char const *argv[]) {
     for(int i = 0; i < numOfrecords; i++) {
         fread(&rec, sizeof(rec), 1, fpb);
         int cur_pos = ftell(fpb);
-        char str[200];
-        sprintf(str, "%ld %s %s  %s %d %s %s %-9.2f\n", \
+        char recStr[200];
+        sprintf(recStr, "%ld %s %s  %s %d %s %s %-9.2f\n", \
         rec.custid, rec.LastName, rec.FirstName, \
         rec.Street, rec.HouseID, rec.City, rec.postcode, \
         rec.amount);
-        if (strstr(str, pattern) != NULL) {
-            printf("%s\n", str);
+        // check if current record includes the given substring
+        if (strstr(recStr, pattern) != NULL) {
+            printf("%s\n", recStr);
         }
     }
 

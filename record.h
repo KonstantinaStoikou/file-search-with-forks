@@ -1,3 +1,6 @@
+#ifndef RECORD_HEADER
+#define RECORD_HEADER
+
 #define SIZEofBUFF 20
 #define SSizeofBUFF 6
 
@@ -11,3 +14,5 @@ typedef struct Record{
     char	postcode[SSizeofBUFF];
     float  	amount;
 } Record;
+
+#endif

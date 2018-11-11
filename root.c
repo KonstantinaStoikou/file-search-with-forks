@@ -2,10 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <ctype.h>
 #include <math.h>
+#include "root_functions.h"
 #include "record.h"
+
+#define MSG_BUF 256
 
 int main(int argc, char const *argv[]) {
     int height = 0;
@@ -39,24 +45,25 @@ int main(int argc, char const *argv[]) {
     printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
     printf("This is root %d\n", getpid());
 
-    // open file and check number of records
-    FILE *fpb;
-    Record rec;
-    long lSize;
-    int numOfrecords;
-
-    fpb = fopen(datafile, "rb");
-    if (fpb == NULL) {
-        perror("Cannot open binary file");
+    // create pipe
+    char pipeName[10];
+    sprintf(pipeName, "pipe%d", getpid());
+    printf("%s\n", pipeName);
+    if (mkfifo(pipeName, 0666 ) == -1) {
+        perror("Error creating named pipe");
         exit(1);
     }
-    // check number of records
-    fseek(fpb, 0, SEEK_END);
-    lSize = ftell(fpb);
-    rewind(fpb);
-    numOfrecords = (int) lSize / sizeof(rec);
-    printf("Records found in file %d of size %ld \n", numOfrecords, sizeof(rec));
-    fclose(fpb);
+
+    /* open for reading only */
+    int fd;
+    if ((fd = open(pipeName, O_RDWR)) < 0) {
+        perror ("Pipe open problem") ;
+        exit(1) ;
+    }
+
+
+    // get number of records of binary file
+    int numOfrecords = findNumOfRecords(datafile);
 
     // fork splitter/merger processes
     pid_t pid = fork();
@@ -100,5 +107,9 @@ int main(int argc, char const *argv[]) {
         // wait for child to finish
         wait(NULL);
     }
+
+    // delete created pipe
+    remove(pipeName);
+
     return 0;
 }
