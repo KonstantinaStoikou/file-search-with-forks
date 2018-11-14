@@ -43,7 +43,7 @@ int main (int argc, char const *argv[]) {
         rec.amount);
         // check if current record includes the given substring
         if (strstr(recStr, pattern) != NULL) {
-            // printf("%s\n", recStr);
+            // write it to parent's pipe
             write(fdw, recStr, (strlen(recStr)+1));
         }
     }

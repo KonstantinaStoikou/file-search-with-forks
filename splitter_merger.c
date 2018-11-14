@@ -21,10 +21,6 @@ int main (int argc, char const *argv[]) {
     int numOfrecords = atoi(argv[7]);
     int mod, start, end, sum;
 
-    char string[70];
-    sprintf(string, "in pipe of process(splitter/merger): %d, with parent: %d", getpid(), getppid());
-    write(fdw, string, (strlen(string)+1));
-
     if (skew == 0) {
         mod = numOfrecords % 2;
         numOfrecords /= 2;
@@ -110,9 +106,10 @@ int main (int argc, char const *argv[]) {
             }
             close(fd[WRITE]);
             char readbuffer[150];
-            // read from pipe (where searcher wrote) untill there is nothing more to read 
+            // read from pipe (where searcher wrote) untill there is nothing more to read
+            // and write it to parent's pipe
             while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
-                printf("\nReceived string: %s\n", readbuffer);
+                write(fdw, readbuffer, 150);
             }
         }
         pid_t wpid;
@@ -201,9 +198,12 @@ int main (int argc, char const *argv[]) {
             position = position + rangeSum * sizeof(Record);
         }
         close(fd[1]);
-        char readbuffer[80];
-        int nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
-        printf("\nReceived string: %s\n", readbuffer);
+        char readbuffer[150];
+        // read from pipe (where splitter/merger wrote) untill there is nothing more to read
+        // and write it to parent's pipe
+        while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
+            write(fdw, readbuffer, 150);
+        }
     }
     pid_t wpid;
     int status = 0;

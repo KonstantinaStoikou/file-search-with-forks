@@ -102,9 +102,11 @@ int main(int argc, char const *argv[]) {
         // wait for child to finish
         wait(NULL);
         close(fd[WRITE]);
-        char readbuffer[80];
-        int nbytes = read(fd[READ], readbuffer, sizeof(readbuffer));
-        printf("\nReceived string: %s\n", readbuffer);
+        char readbuffer[150];
+        // read from pipe (where splitter/merger wrote) untill there is nothing more to read
+        while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
+            printf("Received string in root: %s", readbuffer);
+        }
     }
 
     return 0;
