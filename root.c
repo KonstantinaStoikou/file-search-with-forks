@@ -11,7 +11,8 @@
 #include "root_functions.h"
 #include "record.h"
 
-#define MSG_BUF 256
+#define READ 0
+#define WRITE 1
 
 int main(int argc, char const *argv[]) {
     int height = 0;
@@ -23,6 +24,11 @@ int main(int argc, char const *argv[]) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0) {
             height = atoi(argv[i+1]);
+            // check if valid height
+            if (height < 1) {
+                printf("Height should be at least 1\n");
+                return 1;
+            }
         }
         else if (strcmp(argv[i], "-d") == 0) {
             datafile = malloc(sizeof(strlen(argv[i+1]) + 1));
@@ -36,29 +42,17 @@ int main(int argc, char const *argv[]) {
             skew = 1;
         }
     }
-    // check if valid height
-    if (height < 1) {
-        printf("Height should be at least 1\n");
-        return 1;
-    }
+
 
     printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
     printf("This is root %d\n", getpid());
 
-    // create pipe
-    char pipeName[10];
-    sprintf(pipeName, "pipe%d", getpid());
-    printf("%s\n", pipeName);
-    if (mkfifo(pipeName, 0666 ) == -1) {
-        perror("Error creating named pipe");
-        exit(1);
-    }
 
-    /* open for reading only */
-    int fd;
-    if ((fd = open(pipeName, O_RDWR)) < 0) {
-        perror ("Pipe open problem") ;
-        exit(1) ;
+    // open pipe for reading
+    int fd [2];
+    if (pipe(fd) == -1) {
+        perror("Error creating pipe");
+        exit(1);
     }
 
 
@@ -100,16 +94,13 @@ int main(int argc, char const *argv[]) {
         }
     }
     else if (pid == -1) {
-        perror("fork");
+        perror("Failed to execute fork");
         exit(1);
     }
     else {             // if parent process
         // wait for child to finish
         wait(NULL);
     }
-
-    // delete created pipe
-    remove(pipeName);
 
     return 0;
 }
