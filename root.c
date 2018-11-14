@@ -101,9 +101,9 @@ int main(int argc, char const *argv[]) {
     else {             // if parent process
         // wait for child to finish
         wait(NULL);
-        close(fd[1]);
+        close(fd[WRITE]);
         char readbuffer[80];
-        int nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
+        int nbytes = read(fd[READ], readbuffer, sizeof(readbuffer));
         printf("\nReceived string: %s\n", readbuffer);
     }
 

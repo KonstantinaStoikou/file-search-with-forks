@@ -108,10 +108,12 @@ int main (int argc, char const *argv[]) {
                     position = position + (numOfrecords * end / sum) * sizeof(Record);
                 }
             }
-            close(fd[1]);
-            char readbuffer[80];
-            int nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
-            printf("\nReceived string: %s\n", readbuffer);
+            close(fd[WRITE]);
+            char readbuffer[150];
+            // read from pipe (where searcher wrote) untill there is nothing more to read 
+            while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
+                printf("\nReceived string: %s\n", readbuffer);
+            }
         }
         pid_t wpid;
         int status = 0;

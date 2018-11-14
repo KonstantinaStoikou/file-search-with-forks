@@ -16,9 +16,9 @@ int main (int argc, char const *argv[]) {
     int numOfrecords = atoi(argv[6]);
     printf("numofrecords = %d, position = #%d\n", numOfrecords, position);
 
-    char string[50];
-    sprintf(string, "in pipe of process(searcher): %d, with parent: %d", getpid(), getppid());
-    write(fdw, string, (strlen(string)+1));
+    // char string[50];
+    // sprintf(string, "in pipe of process(searcher): %d, with parent: %d", getpid(), getppid());
+    // write(fdw, string, (strlen(string)+1));
 
     FILE *fpb;
     Record rec;
@@ -36,14 +36,15 @@ int main (int argc, char const *argv[]) {
     for(int i = 0; i < numOfrecords; i++) {
         fread(&rec, sizeof(rec), 1, fpb);
         int cur_pos = ftell(fpb);
-        char recStr[200];
+        char recStr[150];
         sprintf(recStr, "%ld %s %s  %s %d %s %s %-9.2f\n", \
         rec.custid, rec.LastName, rec.FirstName, \
         rec.Street, rec.HouseID, rec.City, rec.postcode, \
         rec.amount);
         // check if current record includes the given substring
         if (strstr(recStr, pattern) != NULL) {
-            printf("%s\n", recStr);
+            // printf("%s\n", recStr);
+            write(fdw, recStr, (strlen(recStr)+1));
         }
     }
 
