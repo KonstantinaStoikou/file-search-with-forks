@@ -62,7 +62,6 @@ int main(int argc, char const *argv[]) {
 
     if (pid == 0) {     // if child process
         close(fd[READ]);
-
         // make integers to strings and pass them to splitter/merger
         // for convenience I assume height is maximum a 4 digit number
         char heightStr[4];
@@ -71,14 +70,14 @@ int main(int argc, char const *argv[]) {
         sprintf(skewStr, "%d", skew);
         char numOfrecordsStr[4];
         sprintf(numOfrecordsStr, "%d", numOfrecords);
+        char fdwStr[10];
+        sprintf(fdwStr, "%d", fd[WRITE]);
         // position where each searcher will start to read the file
         // position will change each time a splitter_merger is created
         char position[] = "0";
 
         if (skew == 0) {
-            char fdwStr[10];
-            sprintf(fdwStr, "%d", fd[WRITE]);
-            execlp("./splitter_merger", heightStr, datafile, pattern, skewStr, position, numOfrecordsStr, fdwStr, NULL);
+            execlp("./splitter_merger", "splitter_merger", fdwStr, heightStr, datafile, pattern, skewStr, position, numOfrecordsStr, NULL);
         } else {
             // if skew == 1 pass extra parameters that show range of searchers each splitter has
             // and sum of numbers till 2^h
@@ -92,7 +91,7 @@ int main(int argc, char const *argv[]) {
             }
             char sumStr[4];
             sprintf(sumStr, "%d", sum);
-            execlp("./splitter_merger", heightStr, datafile, pattern, skewStr, position, numOfrecordsStr, start, end, sumStr, NULL);
+            execlp("./splitter_merger", "splitter_merger", fdwStr, heightStr, datafile, pattern, skewStr, position, numOfrecordsStr, start, end, sumStr, NULL);
         }
     }
     else if (pid == -1) {

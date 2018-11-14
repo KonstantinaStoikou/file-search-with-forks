@@ -6,20 +6,25 @@
 
 int main (int argc, char const *argv[]) {
     printf("This is the Searcher program %d with parent %d\n", getpid(), getppid());
-    char *datafile = malloc(sizeof(strlen(argv[0]) + 1));
-    strcpy(datafile, argv[0]);
-    char *pattern = malloc(sizeof(strlen(argv[1]) + 1));
-    strcpy(pattern, argv[1]);
-    int skew = atoi(argv[2]);
-    int position = atoi(argv[3]);
-    int numOfrecords = atoi(argv[4]);
+    int fdw = atoi(argv[1]);
+    char *datafile = malloc(sizeof(strlen(argv[2]) + 1));
+    strcpy(datafile, argv[2]);
+    char *pattern = malloc(sizeof(strlen(argv[3]) + 1));
+    strcpy(pattern, argv[3]);
+    int skew = atoi(argv[4]);
+    int position = atoi(argv[5]);
+    int numOfrecords = atoi(argv[6]);
     printf("numofrecords = %d, position = #%d\n", numOfrecords, position);
+
+    char string[50];
+    sprintf(string, "in pipe of process(searcher): %d, with parent: %d", getpid(), getppid());
+    write(fdw, string, (strlen(string)+1));
 
     FILE *fpb;
     Record rec;
     long lSize;
 
-    fpb = fopen(argv[0], "rb");
+    fpb = fopen(argv[2], "rb");
     if (fpb == NULL) {
         perror("Cannot open binary file: ");
         exit(1);
