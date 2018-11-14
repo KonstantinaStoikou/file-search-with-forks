@@ -47,22 +47,22 @@ int main(int argc, char const *argv[]) {
     printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
     printf("This is root %d\n", getpid());
 
+    // get number of records of binary file
+    int numOfrecords = findNumOfRecords(datafile);
 
     // open pipe for reading
-    int fd [2];
+    int fd[2];
     if (pipe(fd) == -1) {
         perror("Error creating pipe");
         exit(1);
     }
 
-
-    // get number of records of binary file
-    int numOfrecords = findNumOfRecords(datafile);
-
     // fork splitter/merger processes
     pid_t pid = fork();
 
     if (pid == 0) {     // if child process
+        close(fd[READ]);
+
         // make integers to strings and pass them to splitter/merger
         // for convenience I assume height is maximum a 4 digit number
         char heightStr[4];
@@ -76,7 +76,9 @@ int main(int argc, char const *argv[]) {
         char position[] = "0";
 
         if (skew == 0) {
-            execlp("./splitter_merger", heightStr, datafile, pattern, skewStr, position, numOfrecordsStr, NULL);
+            char fdwStr[10];
+            sprintf(fdwStr, "%d", fd[WRITE]);
+            execlp("./splitter_merger", heightStr, datafile, pattern, skewStr, position, numOfrecordsStr, fdwStr, NULL);
         } else {
             // if skew == 1 pass extra parameters that show range of searchers each splitter has
             // and sum of numbers till 2^h
@@ -100,6 +102,10 @@ int main(int argc, char const *argv[]) {
     else {             // if parent process
         // wait for child to finish
         wait(NULL);
+        close(fd[1]);
+        char readbuffer[80];
+        int nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
+        printf("\nReceived string: %s\n", readbuffer);
     }
 
     return 0;

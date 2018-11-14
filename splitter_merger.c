@@ -16,6 +16,12 @@ int main (int argc, char const *argv[]) {
     int position = atoi(argv[4]);
     int numOfrecords = atoi(argv[5]);
     int mod, start, end, sum;
+    int fd = atoi(argv[6]);
+    printf("fd %s\n", argv[6]);
+    printf("fd %d\n", fd);
+    printf("hii\n");
+    char *string = "hi, this is in pipe";
+    write(fd, string, (strlen(string)+1));
 
     if (skew == 0) {
         mod = numOfrecords % 2;
