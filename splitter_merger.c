@@ -92,11 +92,12 @@ int main (int argc, char const *argv[]) {
                 }
             }
 
-            pid_t wpid;
-            int status = 0;
-            while ((wpid = wait(&status)) > 0) {
-                // printf("Exit status of %d was %d\n", (int)wpid, status);
-            }
+
+        }
+        pid_t wpid;
+        int status = 0;
+        while ((wpid = wait(&status)) > 0) {
+            // printf("Exit status of %d was %d\n", (int)wpid, status);
         }
         exit(0);
     }
@@ -169,12 +170,14 @@ int main (int argc, char const *argv[]) {
             position = position + rangeSum * sizeof(Record);
         }
 
-        pid_t wpid;
-        int status = 0;
-        while ((wpid = wait(&status)) > 0) {
-            // printf("Exit status of %d was %d\n", (int)wpid, status);
-        }
+
     }
+    pid_t wpid;
+    int status = 0;
+    while ((wpid = wait(&status)) > 0) {
+        // printf("Exit status of %d was %d\n", (int)wpid, status);
+    }
+
 
     exit(0);
 }
