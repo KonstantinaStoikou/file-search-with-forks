@@ -120,10 +120,9 @@ int main (int argc, char const *argv[]) {
                 // for the parent to know when a statistic follows and then
                 // write the statistic
                 if (rec.custid == -1) {
-                    // rec.custid = -1;
-                    // write(fdw, &rec, sizeof(rec));
+                    write(fdw, &rec, sizeof(rec));
                     r = read(fd[READ], &stat, sizeof(stat));
-                    // write(fdw, &stat, sizeof(stat));
+                    write(fdw, &stat, sizeof(stat));
                     r = read(fd[READ], &rec, sizeof(rec));
                 } else {
                     write(fdw, &rec, sizeof(rec));
@@ -217,11 +216,25 @@ int main (int argc, char const *argv[]) {
         }
         close(fd[1]);
         Record rec;
+        Statistic stat;
         // read from pipe (where splitter/merger wrote) until there is nothing more to read
         // and write it to parent's pipe
-        while (read(fd[READ], &rec, sizeof(rec)) > 0) {
-            write(fdw, &rec, sizeof(rec));
-        }
+        int r = read(fd[READ], &rec, sizeof(rec));
+        do {
+            // reading a record with negative id means that next thing to
+            // read is a statistic so first write a record with negative id
+            // for the parent to know when a statistic follows and then
+            // write the statistic
+            if (rec.custid == -1) {
+                write(fdw, &rec, sizeof(rec));
+                r = read(fd[READ], &stat, sizeof(stat));
+                write(fdw, &stat, sizeof(stat));
+                r = read(fd[READ], &rec, sizeof(rec));
+            } else {
+                write(fdw, &rec, sizeof(rec));
+                r = read(fd[READ], &rec, sizeof(rec));
+            }
+        } while (r > 0);
     }
     // wait for children to finish
     pid_t wpid;

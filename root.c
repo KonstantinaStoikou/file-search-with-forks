@@ -11,6 +11,7 @@
 #include <time.h>
 #include "root_functions.h"
 #include "record.h"
+#include "statistic.h"
 
 #define READ 0
 #define WRITE 1
@@ -105,16 +106,29 @@ int main(int argc, char const *argv[]) {
         wait(NULL);
         close(fd[WRITE]);
         Record rec;
+        Statistic stat;
         printf("\n" );
         int count = 0;
         // read from pipe (where splitter/merger wrote) until there is nothing more to read
-        while (read(fd[READ], &rec, sizeof(rec)) > 0) {
-            printf("%ld %s %s  %s %d %s %s %-9.2f\n", \
-        		rec.custid, rec.LastName, rec.FirstName, \
-        		rec.Street, rec.HouseID, rec.City, rec.postcode, \
-        		rec.amount);
-            count++;
-        }
+        int r = read(fd[READ], &rec, sizeof(rec));
+        do {
+            // reading a record with negative id means that next thing to
+            // read is a statistic so first write a record with negative id
+            // for the parent to know when a statistic follows and then
+            // write the statistic
+            if (rec.custid == -1) {
+                r = read(fd[READ], &stat, sizeof(stat));
+                printf("%d %f\n", stat.processType, stat.time);
+                r = read(fd[READ], &rec, sizeof(rec));
+            } else {
+                printf("%ld %s %s  %s %d %s %s %-9.2f\n", \
+            		rec.custid, rec.LastName, rec.FirstName, \
+            		rec.Street, rec.HouseID, rec.City, rec.postcode, \
+            		rec.amount);
+                count++;
+                r = read(fd[READ], &rec, sizeof(rec));
+            }
+        } while (r > 0);
         printf("Total records found %d\n", count);
     }
 
