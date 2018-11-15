@@ -9,12 +9,12 @@
 #define WRITE 1
 
 int main (int argc, char const *argv[]) {
-    printf("This is the Splitter/Merger program %d with parent %d\n", getpid(), getppid());
+    // printf("This is the Splitter/Merger program %d with parent %d\n", getpid(), getppid());
     int fdw = atoi(argv[1]);
     int height = atoi(argv[2]);
-    char *datafile = malloc(sizeof(strlen(argv[3]) + 1));
+    char *datafile = malloc(strlen(argv[3]) + 1);
     strcpy(datafile, argv[3]);
-    char *pattern = malloc(sizeof(strlen(argv[4]) + 1));
+    char *pattern = malloc(strlen(argv[4]) + 1);
     strcpy(pattern, argv[4]);
     int skew = atoi(argv[5]);
     int position = atoi(argv[6]);
@@ -29,8 +29,6 @@ int main (int argc, char const *argv[]) {
         end = atoi(argv[9]);
         sum = atoi(argv[10]);
     }
-
-    printf("height = %d\n", height);
 
     if (height == 1) {
         // fork two searchers
@@ -106,9 +104,10 @@ int main (int argc, char const *argv[]) {
             }
             close(fd[WRITE]);
             char readbuffer[150];
-            // read from pipe (where searcher wrote) untill there is nothing more to read
+            // read from pipe (where searcher wrote) until there is nothing more to read
             // and write it to parent's pipe
             while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
+                printf("Received string in splitter %d from searcher %d: %s", getpid(), pid, readbuffer);
                 write(fdw, readbuffer, 150);
             }
         }
@@ -199,9 +198,10 @@ int main (int argc, char const *argv[]) {
         }
         close(fd[1]);
         char readbuffer[150];
-        // read from pipe (where splitter/merger wrote) untill there is nothing more to read
+        // read from pipe (where splitter/merger wrote) until there is nothing more to read
         // and write it to parent's pipe
         while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
+            printf("Received string in splitter %d from splitter %d: %s", getpid(), pid, readbuffer);
             write(fdw, readbuffer, 150);
         }
     }

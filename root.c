@@ -31,11 +31,11 @@ int main(int argc, char const *argv[]) {
             }
         }
         else if (strcmp(argv[i], "-d") == 0) {
-            datafile = malloc(sizeof(strlen(argv[i+1]) + 1));
+            datafile = malloc(strlen(argv[i+1]) + 1);
             strcpy(datafile, argv[i+1]);
         }
         else if (strcmp(argv[i], "-p") == 0) {
-            pattern = malloc(sizeof(strlen(argv[i+1]) + 1));
+            pattern = malloc(strlen(argv[i+1]) + 1);
             strcpy(pattern, argv[i+1]);
         }
         else if (strcmp(argv[i], "-s") == 0) {
@@ -103,9 +103,10 @@ int main(int argc, char const *argv[]) {
         wait(NULL);
         close(fd[WRITE]);
         char readbuffer[150];
-        // read from pipe (where splitter/merger wrote) untill there is nothing more to read
+        printf("\n" );
+        // read from pipe (where splitter/merger wrote) until there is nothing more to read
         while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
-            printf("Received string in root: %s", readbuffer);
+            printf("Received string in root %d from splitter %d: %s", getpid(), pid, readbuffer);
         }
     }
 
