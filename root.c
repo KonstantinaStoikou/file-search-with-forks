@@ -23,6 +23,7 @@ int main(int argc, char const *argv[]) {
     char *pattern;
     int skew = 0;       // flag for skew searching (initialized to false)
 
+    // initialize variables with command line arguments
     readArguments(argc, argv, &height, &datafile, &pattern, &skew);
 
     // get number of records of binary file

@@ -4,7 +4,7 @@
 #include "root_functions.h"
 #include "record.h"
 
-// open binary file and find number of records
+// Open binary file and find number of records
 int findNumOfRecords(char *datafile) {
     FILE *fpb;
     Record rec;
@@ -27,7 +27,7 @@ int findNumOfRecords(char *datafile) {
     return numOfrecords;
 }
 
-// read command line arguments and initialize variables respectively
+// Read command line arguments and initialize variables respectively
 void readArguments(int argc, char const *argv[], int *height, char **datafile, char **pattern, int *skew) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0) {

@@ -6,6 +6,7 @@
 #include <time.h>
 #include "record.h"
 #include "statistic.h"
+#include "spl_mer_functions.h"
 
 #define READ 0
 #define WRITE 1
@@ -57,37 +58,9 @@ int main (int argc, char const *argv[]) {
                 char fdwStr[10];
                 sprintf(fdwStr, "%d", fd[WRITE]);
                 char numOfrecordsStr[10];
-                // if last forked searcher add to numOfrecords the remainder of the division
-                if (skew == 0) {
-                    if (i == 2) {
-                        sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
-                    } else {
-                        sprintf(numOfrecordsStr, "%d", numOfrecords);
-                    }
-                }
-                else {
-                    if (i == 1) {
-                        sprintf(numOfrecordsStr, "%d", numOfrecords * start / sum);
-                    } else {
-                        int endSum = 0;
-                        for (int j = 1; j <= end; j++) {
-                            endSum += j;
-                        }
-                        // if this is the last searcher created pass all remaining records
-                        if (endSum == sum) {
-                            int remaining = numOfrecords;
-                            // for each searcher that has been created find how much records
-                            // has read and substract them from the initial number of records
-                            // to find how many they remain because of modulos
-                            for (int j = 1; j <= end; j++) {
-                                remaining -= numOfrecords * j / sum;
-                            }
-                            sprintf(numOfrecordsStr, "%d", (numOfrecords * end / sum) + remaining);
-                        } else {
-                            sprintf(numOfrecordsStr, "%d", numOfrecords * end / sum);
-                        }
-                    }
-                }
+
+                // break numOfRecords for the process to take depending on skew
+                breakNumOfRecords(skew, numOfrecords, numOfrecordsStr, i, start, end, mod, sum);
 
                 // arguments: fd write end, datafile, pattern, skew, position, numOfrecords, begin time
                 execlp("./searcher", "searcher", fdwStr, datafile, pattern, argv[5], positionStr, numOfrecordsStr, beginStr, NULL);
@@ -97,17 +70,8 @@ int main (int argc, char const *argv[]) {
                 exit(1);
             }
 
-            if (skew == 0) {
-                //the position will increase by the number of records
-                position = position + numOfrecords * sizeof(Record);
-            }
-            else {
-                if (i == 1) {
-                    position = position + (numOfrecords * start / sum) * sizeof(Record);
-                } else {
-                    position = position + (numOfrecords * end / sum) * sizeof(Record);
-                }
-            }
+            increaseSearcherPosition(skew, &position, numOfrecords, i, start, end, sum);
+
             close(fd[WRITE]);
             Record rec;
             Statistic stat;
