@@ -23,32 +23,7 @@ int main(int argc, char const *argv[]) {
     char *pattern;
     int skew = 0;       // flag for skew searching (initialized to false)
 
-    // read command line arguments and initialize variables respectively
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-h") == 0) {
-            height = atoi(argv[i+1]);
-            // check if valid height
-            if (height < 1) {
-                printf("Height should be at least 1\n");
-                return 1;
-            }
-        }
-        else if (strcmp(argv[i], "-d") == 0) {
-            datafile = malloc(strlen(argv[i+1]) + 1);
-            strcpy(datafile, argv[i+1]);
-        }
-        else if (strcmp(argv[i], "-p") == 0) {
-            pattern = malloc(strlen(argv[i+1]) + 1);
-            strcpy(pattern, argv[i+1]);
-        }
-        else if (strcmp(argv[i], "-s") == 0) {
-            skew = 1;
-        }
-    }
-
-
-    printf("height: %d, datafile: %s, pattern: %s, skew: %d\n", height, datafile, pattern, skew);
-    printf("This is root %d\n", getpid());
+    readArguments(argc, argv, &height, &datafile, &pattern, &skew);
 
     // get number of records of binary file
     int numOfrecords = findNumOfRecords(datafile);
