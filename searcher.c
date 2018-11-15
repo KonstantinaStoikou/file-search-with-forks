@@ -40,13 +40,14 @@ int main (int argc, char const *argv[]) {
         if (strstr(recStr, pattern) != NULL) {
             printf("\nin searcher %d: %s\n", getpid(), recStr);
             // write it to parent's pipe
-            if (write(fdw, recStr, strlen(recStr)+1) < 0) {
-                printf("Some error\n");
+            if (write(fdw, recStr, strlen(recStr)+1) != strlen(recStr)+1) {
+                printf("ERROR\n");
             }
+
         }
     }
 
-    fclose (fpb);
+    fclose(fpb);
 
     exit(0);
 }
