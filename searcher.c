@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 #include "record.h"
+#include "statistic.h"
 
 int main (int argc, char const *argv[]) {
     printf("This is the Searcher program %d with parent %d\n", getpid(), getppid());
@@ -14,6 +16,7 @@ int main (int argc, char const *argv[]) {
     int skew = atoi(argv[4]);
     int position = atoi(argv[5]);
     int numOfrecords = atoi(argv[6]);
+    double begin = atof(argv[7]);
 
     FILE *fpb;
     Record rec;
@@ -41,12 +44,19 @@ int main (int argc, char const *argv[]) {
             write(fdw, &rec, sizeof(rec));
         }
     }
+    fclose(fpb);
+
     // when all records are pass to the pipe, pass one last record with
     // negative id so that parent knows when records finish and statistics follow
-    // rec.custid = -1;
-    // write(fdw, &rec, sizeof(rec));
+    rec.custid = -1;
+    write(fdw, &rec, sizeof(rec));
 
-    fclose(fpb);
+    Statistic stat;
+    stat.processType = SEARCHER;
+    clock_t stop = clock();
+    stat.time = (double)(stop - begin) / (double)CLOCKS_PER_SEC;
+    printf("time in searcher is %f\n", stat.time);
+    write(fdw, &stat, sizeof(stat));
 
     exit(0);
 }

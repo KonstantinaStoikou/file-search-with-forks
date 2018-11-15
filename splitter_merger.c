@@ -3,7 +3,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <time.h>
 #include "record.h"
+#include "statistic.h"
 
 #define READ 0
 #define WRITE 1
@@ -42,15 +44,19 @@ int main (int argc, char const *argv[]) {
             pid_t pid = fork();
 
             if (pid == 0) {     // if child process
+                clock_t begin = clock();
+
                 close(fd[READ]);
                 // make integers to strings and pass them to splitter/merger
                 // for convenience I assume numOfrecords is maximum a 10 digit number
                 // and position is maximum a 100 digit number
-                char numOfrecordsStr[10];
+                char beginStr[10];
+                sprintf(beginStr, "%f", (double)begin);
                 char positionStr[100];
                 sprintf(positionStr, "%d", position);
                 char fdwStr[10];
                 sprintf(fdwStr, "%d", fd[WRITE]);
+                char numOfrecordsStr[10];
                 // if last forked searcher add to numOfrecords the remainder of the division
                 if (skew == 0) {
                     if (i == 2) {
@@ -83,8 +89,8 @@ int main (int argc, char const *argv[]) {
                     }
                 }
 
-                // arguments: fd write end, datafile, pattern, skew, position, numOfrecords
-                execlp("./searcher", "searcher", fdwStr, datafile, pattern, argv[5], positionStr, numOfrecordsStr, NULL);
+                // arguments: fd write end, datafile, pattern, skew, position, numOfrecords, begin time
+                execlp("./searcher", "searcher", fdwStr, datafile, pattern, argv[5], positionStr, numOfrecordsStr, beginStr, NULL);
             }
             else if (pid == -1) {
                 perror("fork");
@@ -104,17 +110,31 @@ int main (int argc, char const *argv[]) {
             }
             close(fd[WRITE]);
             Record rec;
+            Statistic stat;
             // read from pipe (where searcher wrote) until there is nothing more to read
             // and write it to parent's pipe
-            while (read(fd[READ], &rec, sizeof(rec)) > 0) {
-                write(fdw, &rec, sizeof(rec));
-            }
+            int r = read(fd[READ], &rec, sizeof(rec));
+            do {
+                // reading a record with negative id means that next thing to
+                // read is a statistic so first write a record with negative id
+                // for the parent to know when a statistic follows and then
+                // write the statistic
+                if (rec.custid == -1) {
+                    // rec.custid = -1;
+                    // write(fdw, &rec, sizeof(rec));
+                    r = read(fd[READ], &stat, sizeof(stat));
+                    // write(fdw, &stat, sizeof(stat));
+                    r = read(fd[READ], &rec, sizeof(rec));
+                } else {
+                    write(fdw, &rec, sizeof(rec));
+                    r = read(fd[READ], &rec, sizeof(rec));
+                }
+            } while (r > 0);
         }
+        // wait for children to finish
         pid_t wpid;
         int status = 0;
-        while ((wpid = wait(&status)) > 0) {
-            // printf("Exit status of %d was %d\n", (int)wpid, status);
-        }
+        while ((wpid = wait(&status)) > 0);
         exit(0);
     }
 
@@ -203,11 +223,10 @@ int main (int argc, char const *argv[]) {
             write(fdw, &rec, sizeof(rec));
         }
     }
+    // wait for children to finish
     pid_t wpid;
     int status = 0;
-    while ((wpid = wait(&status)) > 0) {
-        // printf("Exit status of %d was %d\n", (int)wpid, status);
-    }
+    while ((wpid = wait(&status)) > 0);
 
     exit(0);
 }
