@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <math.h>
+#include <time.h>
 #include "root_functions.h"
 #include "record.h"
 
@@ -15,6 +16,7 @@
 #define WRITE 1
 
 int main(int argc, char const *argv[]) {
+    clock_t begin = clock();
     int height = 0;
     char *datafile;
     char *pattern;
@@ -113,8 +115,12 @@ int main(int argc, char const *argv[]) {
         		rec.amount);
             count++;
         }
-        printf("Total Records read %d\n", count);
+        printf("Total records found %d\n", count);
     }
+
+    clock_t stop = clock();
+    double time_spent = (double)(stop - begin) / (double)CLOCKS_PER_SEC;
+    printf("Turnaround Time %f\n", time_spent);
 
     return 0;
 }

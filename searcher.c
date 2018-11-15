@@ -5,7 +5,7 @@
 #include "record.h"
 
 int main (int argc, char const *argv[]) {
-    // printf("This is the Searcher program %d with parent %d\n", getpid(), getppid());
+    printf("This is the Searcher program %d with parent %d\n", getpid(), getppid());
     int fdw = atoi(argv[1]);
     char *datafile = malloc(strlen(argv[2]) + 1);
     strcpy(datafile, argv[2]);
@@ -32,7 +32,7 @@ int main (int argc, char const *argv[]) {
         fread(&rec, sizeof(rec), 1, fpb);
         int cur_pos = ftell(fpb);
         char recStr[150];
-        sprintf(recStr, "%ld %s %s  %s %d %s %s %-9.2f\n", \
+        sprintf(recStr, "%ld %s %s  %s %d %s %s %-9.2f", \
         rec.custid, rec.LastName, rec.FirstName, \
         rec.Street, rec.HouseID, rec.City, rec.postcode, \
         rec.amount);
@@ -41,6 +41,10 @@ int main (int argc, char const *argv[]) {
             write(fdw, &rec, sizeof(rec));
         }
     }
+    // when all records are pass to the pipe, pass one last record with
+    // negative id so that parent knows when records finish and statistics follow
+    // rec.custid = -1;
+    // write(fdw, &rec, sizeof(rec));
 
     fclose(fpb);
 

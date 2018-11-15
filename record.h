@@ -4,7 +4,7 @@
 #define SIZEofBUFF 20
 #define SSizeofBUFF 6
 
-typedef struct Record{
+typedef struct Record {
     long  	custid;
     char 	FirstName[SIZEofBUFF];
     char 	LastName[SIZEofBUFF];
