@@ -70,34 +70,14 @@ int main (int argc, char const *argv[]) {
                 exit(1);
             }
 
-            increaseSearcherPosition(skew, &position, numOfrecords, i, start, end, sum);
+            increaseSearcherPosition(skew, &position, numOfrecords, start, end, sum);
 
             close(fd[WRITE]);
-            Record rec;
-            Statistic stat;
-            // read from pipe (where searcher wrote) until there is nothing more to read
-            // and write it to parent's pipe
-            int r = read(fd[READ], &rec, sizeof(rec));
-            do {
-                // reading a record with negative id means that next thing to
-                // read is a statistic so first write a record with negative id
-                // for the parent to know when a statistic follows and then
-                // write the statistic
-                if (rec.custid == -1) {
-                    write(fdw, &rec, sizeof(rec));
-                    r = read(fd[READ], &stat, sizeof(stat));
-                    write(fdw, &stat, sizeof(stat));
-                    r = read(fd[READ], &rec, sizeof(rec));
-                } else {
-                    write(fdw, &rec, sizeof(rec));
-                    r = read(fd[READ], &rec, sizeof(rec));
-                }
-            } while (r > 0);
+            readFromChild(fd[READ], fdw);
+
         }
-        // wait for children to finish
-        pid_t wpid;
-        int status = 0;
-        while ((wpid = wait(&status)) > 0);
+
+        waitChildren();
         exit(0);
     }
 
@@ -140,13 +120,8 @@ int main (int argc, char const *argv[]) {
                 execlp("./splitter_merger", "splitter_merger", fdwStr, heightStr, argv[3], pattern, argv[5], positionStr, numOfrecordsStr, NULL);
             }
             else {
-                if (i == 1) {
-                    newStart = start;
-                    newEnd = start - 1 + (end - start + 1) / 2;
-                } else {
-                    newStart = end + 1 - (end - start + 1) / 2;
-                    newEnd = end;
-                }
+                calculateNewRange(i, &newStart, &newEnd, start, end);
+
                 char newStartStr[3];
                 sprintf(newStartStr, "%d", newStart);
                 char newEndStr[3];
@@ -161,49 +136,13 @@ int main (int argc, char const *argv[]) {
             exit(1);
         }
 
-        if (skew == 0) {
-            //the position will increase by the number of records
-            position = position + numOfrecords * sizeof(Record);
-        }
-        else {
-            int rangeSum = 0;
-            if (i == 1) {
-                for (int j = start; j <= start - 1 + (end - start + 1) / 2; j++) {
-                    rangeSum += numOfrecords * j / sum;
-                }
-            } else {
-                for (int j = end + 1 - (end - start + 1) / 2; j <= end; j++) {
-                    rangeSum +=  numOfrecords * j / sum;
-                }
-            }
-            position = position + rangeSum * sizeof(Record);
-        }
-        close(fd[1]);
-        Record rec;
-        Statistic stat;
-        // read from pipe (where splitter/merger wrote) until there is nothing more to read
-        // and write it to parent's pipe
-        int r = read(fd[READ], &rec, sizeof(rec));
-        do {
-            // reading a record with negative id means that next thing to
-            // read is a statistic so first write a record with negative id
-            // for the parent to know when a statistic follows and then
-            // write the statistic
-            if (rec.custid == -1) {
-                write(fdw, &rec, sizeof(rec));
-                r = read(fd[READ], &stat, sizeof(stat));
-                write(fdw, &stat, sizeof(stat));
-                r = read(fd[READ], &rec, sizeof(rec));
-            } else {
-                write(fdw, &rec, sizeof(rec));
-                r = read(fd[READ], &rec, sizeof(rec));
-            }
-        } while (r > 0);
-    }
-    // wait for children to finish
-    pid_t wpid;
-    int status = 0;
-    while ((wpid = wait(&status)) > 0);
+        increaseSplitterMergerPosition(skew, &position, numOfrecords,start, end, sum);
 
+        close(fd[1]);
+        readFromChild(fd[READ], fdw);
+
+    }
+
+    waitChildren();
     exit(0);
 }
