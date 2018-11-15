@@ -102,12 +102,18 @@ int main(int argc, char const *argv[]) {
         // wait for child to finish
         wait(NULL);
         close(fd[WRITE]);
-        char readbuffer[150];
+        Record rec;
         printf("\n" );
+        int count = 0;
         // read from pipe (where splitter/merger wrote) until there is nothing more to read
-        while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
-            printf("Received string in root %d from splitter %d: %s", getpid(), pid, readbuffer);
+        while (read(fd[READ], &rec, sizeof(rec)) > 0) {
+            printf("%ld %s %s  %s %d %s %s %-9.2f\n", \
+        		rec.custid, rec.LastName, rec.FirstName, \
+        		rec.Street, rec.HouseID, rec.City, rec.postcode, \
+        		rec.amount);
+            count++;
         }
+        printf("Total Records read %d\n", count);
     }
 
     return 0;

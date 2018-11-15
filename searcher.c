@@ -38,12 +38,7 @@ int main (int argc, char const *argv[]) {
         rec.amount);
         // check if current record includes the given substring
         if (strstr(recStr, pattern) != NULL) {
-            printf("\nin searcher %d: %s\n", getpid(), recStr);
-            // write it to parent's pipe
-            if (write(fdw, recStr, strlen(recStr)+1) != strlen(recStr)+1) {
-                printf("ERROR\n");
-            }
-
+            write(fdw, &rec, sizeof(rec));
         }
     }
 

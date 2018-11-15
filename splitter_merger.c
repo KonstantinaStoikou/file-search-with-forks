@@ -103,12 +103,11 @@ int main (int argc, char const *argv[]) {
                 }
             }
             close(fd[WRITE]);
-            char readbuffer[150];
+            Record rec;
             // read from pipe (where searcher wrote) until there is nothing more to read
             // and write it to parent's pipe
-            while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
-                printf("Received string in splitter %d from searcher %d: %s", getpid(), pid, readbuffer);
-                write(fdw, readbuffer, 150);
+            while (read(fd[READ], &rec, sizeof(rec)) > 0) {
+                write(fdw, &rec, sizeof(rec));
             }
         }
         pid_t wpid;
@@ -197,12 +196,11 @@ int main (int argc, char const *argv[]) {
             position = position + rangeSum * sizeof(Record);
         }
         close(fd[1]);
-        char readbuffer[150];
+        Record rec;
         // read from pipe (where splitter/merger wrote) until there is nothing more to read
         // and write it to parent's pipe
-        while (read(fd[READ], readbuffer, sizeof(readbuffer)) > 0) {
-            printf("Received string in splitter %d from splitter %d: %s", getpid(), pid, readbuffer);
-            write(fdw, readbuffer, 150);
+        while (read(fd[READ], &rec, sizeof(rec)) > 0) {
+            write(fdw, &rec, sizeof(rec));
         }
     }
     pid_t wpid;
