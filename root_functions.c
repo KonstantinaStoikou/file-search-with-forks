@@ -51,3 +51,14 @@ void readArguments(int argc, char const *argv[], int *height, char **datafile, c
         }
     }
 }
+
+void findRunningTimes(double *min, double *max, double *average, int *count, double time) {
+    if (*min > time) {
+        *min = time;
+    }
+    if (*max < time) {
+        *max = time;
+    }
+    *average += time;
+    (*count)++;
+}

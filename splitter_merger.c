@@ -68,14 +68,11 @@ int main (int argc, char const *argv[]) {
                 perror("fork");
                 exit(1);
             }
-
             increaseSearcherPosition(skew, &position, numOfrecords, start, end, sum);
 
             close(fd[WRITE]);
             readFromChild(fd[READ], fdw);
-
         }
-
         waitChildren();
 
         gettimeofday(&stop, NULL);
@@ -138,14 +135,11 @@ int main (int argc, char const *argv[]) {
             perror("fork");
             exit(1);
         }
-
         increaseSplitterMergerPosition(skew, &position, numOfrecords,start, end, sum);
 
         close(fd[1]);
         readFromChild(fd[READ], fdw);
-
     }
-
     waitChildren();
 
     gettimeofday(&stop, NULL);

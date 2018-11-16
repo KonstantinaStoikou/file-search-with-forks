@@ -78,11 +78,22 @@ int main(int argc, char const *argv[]) {
     else {             // if parent process
         // wait for child to finish
         wait(NULL);
+
         close(fd[WRITE]);
         Record rec;
         Statistic stat;
         printf("\n" );
         int count = 0;
+        // variables for running time of processes
+        double minSearcher = 100000;
+        double maxSearcher = 0;
+        double averageSearcher;
+        int searcherCounter = 0;
+        double minSplMerg = 100000;
+        double maxSlpMerg = 0;
+        double averageSplMerg;
+        int splMergCounter = 0;
+
         // read from pipe (where splitter/merger wrote) until there is nothing more to read
         int r = read(fd[READ], &rec, sizeof(rec));
         do {
@@ -93,6 +104,11 @@ int main(int argc, char const *argv[]) {
             if (rec.custid == -1) {
                 r = read(fd[READ], &stat, sizeof(stat));
                 printf("%d %f\n", stat.processType, stat.time);
+                if (stat.processType == SEARCHER) {
+                    findRunningTimes(&minSearcher, &maxSearcher, &averageSearcher, &searcherCounter, stat.time);
+                } else {
+                    findRunningTimes(&minSplMerg, &maxSlpMerg, &averageSplMerg, &splMergCounter, stat.time);
+                }
                 r = read(fd[READ], &rec, sizeof(rec));
             } else {
                 printf("%ld %s %s  %s %d %s %s %-9.2f\n", \
@@ -104,6 +120,14 @@ int main(int argc, char const *argv[]) {
             }
         } while (r > 0);
         printf("Total records found %d\n", count);
+        averageSearcher = averageSearcher / searcherCounter;
+        averageSplMerg = averageSplMerg / splMergCounter;
+        printf("Min searcher running time: %f\n", minSearcher);
+        printf("Max searcher running time: %f\n", maxSearcher);
+        printf("Average searcher running time: %f\n", averageSearcher);
+        printf("Min searcher running time: %f\n", minSplMerg);
+        printf("Max searcher running time: %f\n", maxSlpMerg);
+        printf("Average splitter/merger running time: %f\n", averageSplMerg);
     }
 
     gettimeofday(&stop, NULL);

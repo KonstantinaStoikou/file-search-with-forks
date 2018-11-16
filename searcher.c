@@ -57,7 +57,6 @@ int main (int argc, char const *argv[]) {
     stat.processType = SEARCHER;
     gettimeofday(&stop, NULL);
     stat.time = (double) (stop.tv_usec - begin.tv_usec) / 1000000 + (double) (stop.tv_sec - begin.tv_sec);
-    printf("time in searcher is %f\n", stat.time);
     write(fdw, &stat, sizeof(stat));
 
     exit(0);
