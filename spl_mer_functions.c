@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #include "spl_mer_functions.h"
 #include "record.h"
 #include "statistic.h"
@@ -67,6 +68,7 @@ void increaseSplitterMergerPosition(int skew, int *position, int numOfrecords,in
 }
 
 
+// Read from pipe (where child is writing) and write everything to parent's pipe
 void readFromChild(int fd, int fdw) {
     Record rec;
     Statistic stat;
@@ -100,6 +102,7 @@ void waitChildren(void) {
 
 
 void calculateNewRange(int i, int *newStart, int *newEnd, int start, int end) {
+    // i show process runs (the order it was forked)
     if (i == 1) {
         *newStart = start;
         *newEnd = start - 1 + (end - start + 1) / 2;
@@ -107,4 +110,17 @@ void calculateNewRange(int i, int *newStart, int *newEnd, int start, int end) {
         *newStart = end + 1 - (end - start + 1) / 2;
         *newEnd = end;
     }
+}
+
+void writeTimeToParent(int fdw, struct timeval begin, struct timeval stop) {
+    // when all records are passed to the pipe, pass one last record with
+    // negative id so that parent knows when records finish and statistics follow
+    Record rec;
+    rec.custid = -1;
+    write(fdw, &rec, sizeof(rec));
+
+    Statistic stat;
+    stat.processType = SPL_MER;
+    stat.time = (double) (stop.tv_usec - begin.tv_usec) / 1000000 + (double) (stop.tv_sec - begin.tv_sec);
+    write(fdw, &stat, sizeof(stat));
 }

@@ -4,3 +4,4 @@ void increaseSplitterMergerPosition(int skew, int *position, int numOfrecords, i
 void readFromChild(int fd, int fdw);
 void waitChildren(void);
 void calculateNewRange(int i, int *newStart, int *newEnd, int start, int end);
+void writeTimeToParent(int fdw, struct timeval begin, struct timeval stop);

@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <math.h>
-#include <time.h>
+#include <sys/time.h>
 #include "root_functions.h"
 #include "record.h"
 #include "statistic.h"
@@ -13,7 +13,9 @@
 #define WRITE 1
 
 int main(int argc, char const *argv[]) {
-    clock_t begin = clock();
+    struct timeval  begin, stop;
+    gettimeofday(&begin, NULL);
+
     int height = 0;
     char *datafile;
     char *pattern;
@@ -104,8 +106,8 @@ int main(int argc, char const *argv[]) {
         printf("Total records found %d\n", count);
     }
 
-    clock_t stop = clock();
-    double time_spent = (double)(stop - begin) / (double)CLOCKS_PER_SEC;
+    gettimeofday(&stop, NULL);
+    double time_spent = (double) (stop.tv_usec - begin.tv_usec) / 1000000 + (double) (stop.tv_sec - begin.tv_sec);
     printf("Turnaround Time %f\n", time_spent);
 
     return 0;

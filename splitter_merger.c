@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
-#include <time.h>
+#include <sys/time.h>
 #include "record.h"
 #include "statistic.h"
 #include "spl_mer_functions.h"
@@ -12,6 +12,9 @@
 #define WRITE 1
 
 int main (int argc, char const *argv[]) {
+    struct timeval  begin, stop;
+    gettimeofday(&begin, NULL);
+
     printf("This is the Splitter/Merger program %d with parent %d\n", getpid(), getppid());
     int fdw = atoi(argv[1]);
     int height = atoi(argv[2]);
@@ -45,14 +48,10 @@ int main (int argc, char const *argv[]) {
             pid_t pid = fork();
 
             if (pid == 0) {     // if child process
-                clock_t begin = clock();
-
                 close(fd[READ]);
                 // make integers to strings and pass them to splitter/merger
                 // for convenience I assume numOfrecords is maximum a 10 digit number
                 // and position is maximum a 100 digit number
-                char beginStr[10];
-                sprintf(beginStr, "%f", (double)begin);
                 char positionStr[100];
                 sprintf(positionStr, "%d", position);
                 char fdwStr[10];
@@ -62,8 +61,8 @@ int main (int argc, char const *argv[]) {
                 // break numOfRecords for the process to take depending on skew
                 breakNumOfRecords(skew, numOfrecords, numOfrecordsStr, i, start, end, mod, sum);
 
-                // arguments: fd write end, datafile, pattern, skew, position, numOfrecords, begin time
-                execlp("./searcher", "searcher", fdwStr, datafile, pattern, argv[5], positionStr, numOfrecordsStr, beginStr, NULL);
+                // arguments: fd write end, datafile, pattern, skew, position, numOfrecords
+                execlp("./searcher", "searcher", fdwStr, datafile, pattern, argv[5], positionStr, numOfrecordsStr, NULL);
             }
             else if (pid == -1) {
                 perror("fork");
@@ -78,6 +77,10 @@ int main (int argc, char const *argv[]) {
         }
 
         waitChildren();
+
+        gettimeofday(&stop, NULL);
+        writeTimeToParent(fdw, begin, stop);
+
         exit(0);
     }
 
@@ -144,5 +147,9 @@ int main (int argc, char const *argv[]) {
     }
 
     waitChildren();
+
+    gettimeofday(&stop, NULL);
+    writeTimeToParent(fdw, begin, stop);
+
     exit(0);
 }
