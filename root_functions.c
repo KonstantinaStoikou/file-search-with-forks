@@ -21,7 +21,6 @@ int findNumOfRecords(char *datafile) {
     lSize = ftell(fpb);
     rewind(fpb);
     numOfrecords = (int) lSize / sizeof(rec);
-    printf("Records found in file %d of size %ld \n", numOfrecords, sizeof(rec));
     fclose(fpb);
 
     return numOfrecords;

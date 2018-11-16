@@ -10,7 +10,6 @@ int main (int argc, char const *argv[]) {
     struct timeval  begin, stop;
     gettimeofday(&begin, NULL);
 
-    printf("This is the Searcher program %d with parent %d\n", getpid(), getppid());
     int fdw = atoi(argv[1]);
     char *datafile = malloc(strlen(argv[2]) + 1);
     strcpy(datafile, argv[2]);

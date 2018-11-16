@@ -15,7 +15,6 @@ int main (int argc, char const *argv[]) {
     struct timeval  begin, stop;
     gettimeofday(&begin, NULL);
 
-    printf("This is the Splitter/Merger program %d with parent %d\n", getpid(), getppid());
     int fdw = atoi(argv[1]);
     int height = atoi(argv[2]);
     char *datafile = malloc(strlen(argv[3]) + 1);

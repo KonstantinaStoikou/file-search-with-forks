@@ -94,7 +94,15 @@ int main(int argc, char const *argv[]) {
         double averageSplMerg;
         int splMergCounter = 0;
 
+        // open file where results will be written
+        FILE *fp = fopen("results.txt", "w");
+        if (fp == NULL) {
+            perror("Failed to open file: \n");
+            exit(1);
+        }
+
         // read from pipe (where splitter/merger wrote) until there is nothing more to read
+        // and write only records to file
         int r = read(fd[READ], &rec, sizeof(rec));
         do {
             // reading a record with negative id means that next thing to
@@ -115,11 +123,19 @@ int main(int argc, char const *argv[]) {
             		rec.custid, rec.LastName, rec.FirstName, \
             		rec.Street, rec.HouseID, rec.City, rec.postcode, \
             		rec.amount);
+                // write record to file
+                fprintf(fp, "%ld %s %s  %s %d %s %s %-9.2f\n", \
+            		rec.custid, rec.LastName, rec.FirstName, \
+            		rec.Street, rec.HouseID, rec.City, rec.postcode, \
+            		rec.amount);
                 count++;
                 r = read(fd[READ], &rec, sizeof(rec));
             }
         } while (r > 0);
-        printf("Total records found %d\n", count);
+
+        fclose(fp);
+
+        printf("\n%d records found\n", count);
         averageSearcher = averageSearcher / searcherCounter;
         averageSplMerg = averageSplMerg / splMergCounter;
         printf("Min searcher running time: %f\n", minSearcher);
@@ -132,7 +148,11 @@ int main(int argc, char const *argv[]) {
 
     gettimeofday(&stop, NULL);
     double time_spent = (double) (stop.tv_usec - begin.tv_usec) / 1000000 + (double) (stop.tv_sec - begin.tv_sec);
-    printf("Turnaround Time %f\n", time_spent);
+    printf("Turnaround Time %f\n\n", time_spent);
+
+    // call sort for the results file that will print sorted results in console
+    execlp("sort", "sort", "-k", "1", "results.txt", NULL);
+
 
     return 0;
 }
