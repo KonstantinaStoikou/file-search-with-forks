@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 #include <sys/time.h>
 #include "record.h"
 #include "statistic.h"
@@ -10,20 +11,21 @@ int main (int argc, char const *argv[]) {
     struct timeval  begin, stop;
     gettimeofday(&begin, NULL);
 
-    int fdw = atoi(argv[1]);
-    char *datafile = malloc(strlen(argv[2]) + 1);
-    strcpy(datafile, argv[2]);
-    char *pattern = malloc(strlen(argv[3]) + 1);
-    strcpy(pattern, argv[3]);
-    int skew = atoi(argv[4]);
-    int position = atoi(argv[5]);
-    int numOfrecords = atoi(argv[6]);
-
+    int rootPid = atoi(argv[1]);
+    int fdw = atoi(argv[2]);
+    char *datafile = malloc(strlen(argv[3]) + 1);
+    strcpy(datafile, argv[3]);
+    char *pattern = malloc(strlen(argv[4]) + 1);
+    strcpy(pattern, argv[4]);
+    int skew = atoi(argv[5]);
+    int position = atoi(argv[6]);
+    int numOfrecords = atoi(argv[7]);
+    printf("root pid in searcher %d\n", rootPid);
     FILE *fpb;
     Record rec;
     long lSize;
 
-    fpb = fopen(argv[2], "rb");
+    fpb = fopen(argv[3], "rb");
     if (fpb == NULL) {
         perror("Cannot open binary file: ");
         exit(1);

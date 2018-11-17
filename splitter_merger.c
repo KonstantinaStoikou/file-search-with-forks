@@ -15,24 +15,25 @@ int main (int argc, char const *argv[]) {
     struct timeval  begin, stop;
     gettimeofday(&begin, NULL);
 
-    int fdw = atoi(argv[1]);
-    int height = atoi(argv[2]);
-    char *datafile = malloc(strlen(argv[3]) + 1);
-    strcpy(datafile, argv[3]);
-    char *pattern = malloc(strlen(argv[4]) + 1);
-    strcpy(pattern, argv[4]);
-    int skew = atoi(argv[5]);
-    int position = atoi(argv[6]);
-    int numOfrecords = atoi(argv[7]);
+    int rootPid = atoi(argv[1]);
+    int fdw = atoi(argv[2]);
+    int height = atoi(argv[3]);
+    char *datafile = malloc(strlen(argv[4]) + 1);
+    strcpy(datafile, argv[4]);
+    char *pattern = malloc(strlen(argv[5]) + 1);
+    strcpy(pattern, argv[5]);
+    int skew = atoi(argv[6]);
+    int position = atoi(argv[7]);
+    int numOfrecords = atoi(argv[8]);
     int mod, start, end, sum;
 
     if (skew == 0) {
         mod = numOfrecords % 2;
         numOfrecords /= 2;
     } else {
-        start = atoi(argv[8]);
-        end = atoi(argv[9]);
-        sum = atoi(argv[10]);
+        start = atoi(argv[9]);
+        end = atoi(argv[10]);
+        sum = atoi(argv[11]);
     }
 
     if (height == 1) {
@@ -60,8 +61,9 @@ int main (int argc, char const *argv[]) {
                 // break numOfRecords for the process to take depending on skew
                 breakNumOfRecords(skew, numOfrecords, numOfrecordsStr, i, start, end, mod, sum);
 
-                // arguments: fd write end, datafile, pattern, skew, position, numOfrecords
-                execlp("./searcher", "searcher", fdwStr, datafile, pattern, argv[5], positionStr, numOfrecordsStr, NULL);
+                // arguments: root pid, fd write end, datafile, pattern, skew, position, numOfrecords, root pid
+                execlp("./searcher", "searcher", argv[1], fdwStr, datafile, pattern, \
+                    argv[6], positionStr, numOfrecordsStr, NULL);
             }
             else if (pid == -1) {
                 perror("fork");
@@ -115,8 +117,9 @@ int main (int argc, char const *argv[]) {
                 } else {
                     sprintf(numOfrecordsStr, "%d", numOfrecords);
                 }
-                // arguments: fd write end, height, datafile, pattern, skew, position, numOfrecords
-                execlp("./splitter_merger", "splitter_merger", fdwStr, heightStr, argv[3], pattern, argv[5], positionStr, numOfrecordsStr, NULL);
+                // arguments: root pid, fd write end, height, datafile, pattern, skew, position, numOfrecords, root pid
+                execlp("./splitter_merger", "splitter_merger", argv[1], fdwStr, heightStr, \
+                    argv[4], pattern, argv[6], positionStr, numOfrecordsStr, NULL);
             }
             else {
                 calculateNewRange(i, &newStart, &newEnd, start, end);
@@ -126,8 +129,10 @@ int main (int argc, char const *argv[]) {
                 char newEndStr[3];
                 sprintf(newEndStr, "%d", newEnd);
                 sprintf(numOfrecordsStr, "%d", numOfrecords);
-                // arguments: fd write end, height, datafile, pattern, skew, position, numOfrecords, start, end, sum
-                execlp("./splitter_merger", "splitter_merger", fdwStr, heightStr, argv[3], pattern, argv[5], positionStr, numOfrecordsStr, newStartStr, newEndStr, argv[10], NULL);
+                // arguments: root pid, fd write end, height, datafile, pattern, skew, position, numOfrecords, start, end, sum
+                execlp("./splitter_merger", "splitter_merger", argv[1], fdwStr, heightStr, \
+                    argv[4], pattern, argv[6], positionStr, numOfrecordsStr, \
+                    newStartStr, newEndStr, argv[11], NULL);
             }
         }
         else if (pid == -1) {
