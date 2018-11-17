@@ -92,15 +92,15 @@ int main(int argc, char const *argv[]) {
     else {             // if parent process
         // wait for child to finish
         wait(NULL);
-
         close(fd[WRITE]);
-
         readAndWriteResults(fd[READ], &count, &minSearcher, &maxSearcher, &averageSearcher, \
             &searcherCounter, &minSplMerg, &maxSlpMerg, &averageSplMerg, &splMergCounter);
     }
 
     pid_t pidSort = fork();
     if (pidSort == 0) {      // if child process
+        // call sort for the results file that will print sorted results in console
+        // (sorted by first column)
         execlp("sort", "sort", "-k", "1", "results.txt", NULL);
     }
     else if (pidSort == -1) {
@@ -120,10 +120,8 @@ int main(int argc, char const *argv[]) {
         double time_spent = (double) (stop.tv_usec - begin.tv_usec) / 1000000 + (double) (stop.tv_sec - begin.tv_sec);
         printf("Turnaround Time %f\n\n", time_spent);
     }
-    // call sort for the results file that will print sorted results in console
-    // (sorted by first column)
 
-
-
+    free(pattern);
+    free(datafile);
     return 0;
 }
