@@ -56,19 +56,11 @@ void readArguments(int argc, char const *argv[], int *height, char **datafile, c
 
 // read from pipe (where splitter/merger wrote) until there is nothing more to read
 // and write only records to file and print time statistics
-void readAndWriteResults(int fd) {
+void readAndWriteResults(int fd, int *count, double *minSearcher, double *maxSearcher, double *averageSearcher, \
+                        int *searcherCounter, double *minSplMerg, double *maxSlpMerg, double *averageSplMerg, \
+                        int *splMergCounter) {
     Record rec;
     Statistic stat;
-    int count = 0;
-    // variables for running time of processes (for min set a very high number)
-    double minSearcher = 100000;
-    double maxSearcher = 0;
-    double averageSearcher;
-    int searcherCounter = 0;
-    double minSplMerg = 100000;
-    double maxSlpMerg = 0;
-    double averageSplMerg;
-    int splMergCounter = 0;
 
     // open file where results will be written
     FILE *fp = fopen("results.txt", "w");
@@ -86,9 +78,9 @@ void readAndWriteResults(int fd) {
         if (rec.custid == -1) {
             r = read(fd, &stat, sizeof(stat));
             if (stat.processType == SEARCHER) {
-                findRunningTimes(&minSearcher, &maxSearcher, &averageSearcher, &searcherCounter, stat.time);
+                findRunningTimes(minSearcher, maxSearcher, averageSearcher, searcherCounter, stat.time);
             } else {
-                findRunningTimes(&minSplMerg, &maxSlpMerg, &averageSplMerg, &splMergCounter, stat.time);
+                findRunningTimes(minSplMerg, maxSlpMerg, averageSplMerg, splMergCounter, stat.time);
             }
             r = read(fd, &rec, sizeof(rec));
         } else {
@@ -97,22 +89,16 @@ void readAndWriteResults(int fd) {
                 rec.custid, rec.LastName, rec.FirstName, \
                 rec.Street, rec.HouseID, rec.City, rec.postcode, \
                 rec.amount);
-            count++;
+            (*count)++;
             r = read(fd, &rec, sizeof(rec));
         }
     } while (r > 0);
 
     fclose(fp);
 
-    printf("\n%d records found\n", count);
-    averageSearcher = averageSearcher / searcherCounter;
-    averageSplMerg = averageSplMerg / splMergCounter;
-    printf("Min searcher running time: %f\n", minSearcher);
-    printf("Max searcher running time: %f\n", maxSearcher);
-    printf("Average searcher running time: %f\n", averageSearcher);
-    printf("Min searcher running time: %f\n", minSplMerg);
-    printf("Max searcher running time: %f\n", maxSlpMerg);
-    printf("Average splitter/merger running time: %f\n", averageSplMerg);
+    *averageSearcher = *averageSearcher / *searcherCounter;
+    *averageSplMerg = *averageSplMerg / *splMergCounter;
+
 }
 
 void findRunningTimes(double *min, double *max, double *average, int *count, double time) {

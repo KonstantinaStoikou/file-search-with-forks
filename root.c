@@ -20,6 +20,17 @@ int main(int argc, char const *argv[]) {
     char *pattern;
     int skew = 0;       // flag for skew searching (initialized to false)
 
+    // variables for running time of processes (for min set a very high number)
+    int count = 0;
+    double minSearcher = 100000;
+    double maxSearcher = 0;
+    double averageSearcher;
+    int searcherCounter = 0;
+    double minSplMerg = 100000;
+    double maxSlpMerg = 0;
+    double averageSplMerg;
+    int splMergCounter = 0;
+
     // initialize variables with command line arguments
     readArguments(argc, argv, &height, &datafile, &pattern, &skew);
 
@@ -83,17 +94,35 @@ int main(int argc, char const *argv[]) {
         wait(NULL);
 
         close(fd[WRITE]);
-        readAndWriteResults(fd[READ]);
 
+        readAndWriteResults(fd[READ], &count, &minSearcher, &maxSearcher, &averageSearcher, \
+            &searcherCounter, &minSplMerg, &maxSlpMerg, &averageSplMerg, &splMergCounter);
     }
 
-    gettimeofday(&stop, NULL);
-    double time_spent = (double) (stop.tv_usec - begin.tv_usec) / 1000000 + (double) (stop.tv_sec - begin.tv_sec);
-    printf("Turnaround Time %f\n\n", time_spent);
-
+    pid_t pidSort = fork();
+    if (pidSort == 0) {      // if child process
+        execlp("sort", "sort", "-k", "1", "results.txt", NULL);
+    }
+    else if (pidSort == -1) {
+        perror("Failed to execute fork");
+        exit(1);
+    }
+    else {      // if parent process
+        wait(NULL);
+        printf("\n%d records found\n", count);
+        printf("Min searcher running time: %f\n", minSearcher);
+        printf("Max searcher running time: %f\n", maxSearcher);
+        printf("Average searcher running time: %f\n", averageSearcher);
+        printf("Min searcher running time: %f\n", minSplMerg);
+        printf("Max searcher running time: %f\n", maxSlpMerg);
+        printf("Average splitter/merger running time: %f\n", averageSplMerg);
+        gettimeofday(&stop, NULL);
+        double time_spent = (double) (stop.tv_usec - begin.tv_usec) / 1000000 + (double) (stop.tv_sec - begin.tv_sec);
+        printf("Turnaround Time %f\n\n", time_spent);
+    }
     // call sort for the results file that will print sorted results in console
     // (sorted by first column)
-    execlp("sort", "sort", "-k", "1", "results.txt", NULL);
+
 
 
     return 0;
