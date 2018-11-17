@@ -151,6 +151,7 @@ int main(int argc, char const *argv[]) {
     printf("Turnaround Time %f\n\n", time_spent);
 
     // call sort for the results file that will print sorted results in console
+    // (sorted by first column)
     execlp("sort", "sort", "-k", "1", "results.txt", NULL);
 
 

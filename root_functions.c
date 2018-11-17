@@ -61,3 +61,9 @@ void findRunningTimes(double *min, double *max, double *average, int *count, dou
     *average += time;
     (*count)++;
 }
+
+void handler(int signal) {
+    if (signal == SIGUSR2) {
+        printf("Received SIGUSR2!\n");
+    }
+}
