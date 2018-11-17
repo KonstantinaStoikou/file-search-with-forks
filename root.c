@@ -49,7 +49,7 @@ int main(int argc, char const *argv[]) {
         char fdwStr[10];
         sprintf(fdwStr, "%d", fd[WRITE]);
         char pidStr[10];
-        sprintf(pidStr, "%d", getpid());
+        sprintf(pidStr, "%d", getppid());
         // position where each searcher will start to read the file
         // position will change each time a splitter_merger is created
         char position[] = "0";
