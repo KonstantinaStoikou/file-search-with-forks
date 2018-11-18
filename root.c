@@ -10,8 +10,14 @@
 #define READ 0
 #define WRITE 1
 
+void handler()
+
+{  signal(SIGUSR2,handler);
+   printf("Root received a SIGUSR2\n");
+}
+
+
 int main(int argc, char const *argv[]) {
-    printf("Root pid: %d\n", getpid());
     struct timeval  begin, stop;
     gettimeofday(&begin, NULL);
 
@@ -90,6 +96,8 @@ int main(int argc, char const *argv[]) {
         exit(1);
     }
     else {             // if parent process
+        // set signal handler
+        signal(SIGUSR2,handler);
         // wait for child to finish
         wait(NULL);
         close(fd[WRITE]);

@@ -20,7 +20,6 @@ int main (int argc, char const *argv[]) {
     int skew = atoi(argv[5]);
     int position = atoi(argv[6]);
     int numOfrecords = atoi(argv[7]);
-    printf("root pid in searcher %d\n", rootPid);
     FILE *fpb;
     Record rec;
     long lSize;
@@ -44,6 +43,7 @@ int main (int argc, char const *argv[]) {
         rec.amount);
         // check if current record includes the given substring
         if (strstr(recStr, pattern) != NULL) {
+            // printf("%s\n", recStr);
             write(fdw, &rec, sizeof(rec));
         }
     }
@@ -59,6 +59,8 @@ int main (int argc, char const *argv[]) {
     gettimeofday(&stop, NULL);
     stat.time = (double) (stop.tv_usec - begin.tv_usec) / 1000000 + (double) (stop.tv_sec - begin.tv_sec);
     write(fdw, &stat, sizeof(stat));
+    // send signal to parent
+    kill(rootPid, SIGUSR2);
 
     exit(0);
 }

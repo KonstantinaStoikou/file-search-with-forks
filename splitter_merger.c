@@ -70,7 +70,6 @@ int main (int argc, char const *argv[]) {
                 exit(1);
             }
             increaseSearcherPosition(skew, &position, numOfrecords, start, end, sum);
-
             close(fd[WRITE]);
             readFromChild(fd[READ], fdw);
         }
