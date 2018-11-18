@@ -57,10 +57,8 @@ int main (int argc, char const *argv[]) {
                 char fdwStr[10];
                 sprintf(fdwStr, "%d", fd[WRITE]);
                 char numOfrecordsStr[10];
-
                 // break numOfRecords for the process to take depending on skew
                 breakNumOfRecords(skew, numOfrecords, numOfrecordsStr, i, start, end, mod, sum);
-
                 // arguments: root pid, fd write end, datafile, pattern, skew, position, numOfrecords, root pid
                 execlp("./searcher", "searcher", argv[1], fdwStr, datafile, pattern, \
                     argv[6], positionStr, numOfrecordsStr, NULL);

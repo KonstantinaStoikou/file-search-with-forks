@@ -62,7 +62,7 @@ int main(int argc, char const *argv[]) {
         sprintf(heightStr, "%d", height);
         char skewStr[4];
         sprintf(skewStr, "%d", skew);
-        char numOfrecordsStr[4];
+        char numOfrecordsStr[10];
         sprintf(numOfrecordsStr, "%d", numOfrecords);
         char fdwStr[10];
         sprintf(fdwStr, "%d", fd[WRITE]);
@@ -134,5 +134,6 @@ int main(int argc, char const *argv[]) {
 
     free(pattern);
     free(datafile);
+    remove("results.txt");
     return 0;
 }
