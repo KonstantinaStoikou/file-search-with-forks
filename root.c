@@ -10,10 +10,11 @@
 #define READ 0
 #define WRITE 1
 
-void handler()
+int sigCount = 0;
 
-{  signal(SIGUSR2,handler);
-   printf("Root received a SIGUSR2\n");
+void handler() {
+    signal(SIGUSR2,handler);
+    sigCount++;
 }
 
 
@@ -98,11 +99,12 @@ int main(int argc, char const *argv[]) {
     else {             // if parent process
         // set signal handler
         signal(SIGUSR2,handler);
-        // wait for child to finish
-        wait(NULL);
         close(fd[WRITE]);
         readAndWriteResults(fd[READ], &count, &minSearcher, &maxSearcher, &averageSearcher, \
             &searcherCounter, &minSplMerg, &maxSlpMerg, &averageSplMerg, &splMergCounter);
+
+        // wait for child to finish
+        wait(NULL);
     }
 
     pid_t pidSort = fork();
@@ -118,11 +120,12 @@ int main(int argc, char const *argv[]) {
     else {      // if parent process
         wait(NULL);
         printf("\n%d records found\n", count);
+        printf("Root received %d SIGUSR2 signals\n", sigCount);
         printf("Min searcher running time: %f\n", minSearcher);
         printf("Max searcher running time: %f\n", maxSearcher);
         printf("Average searcher running time: %f\n", averageSearcher);
-        printf("Min searcher running time: %f\n", minSplMerg);
-        printf("Max searcher running time: %f\n", maxSlpMerg);
+        printf("Min splitter/merger running time: %f\n", minSplMerg);
+        printf("Max splitter/merger running time: %f\n", maxSlpMerg);
         printf("Average splitter/merger running time: %f\n", averageSplMerg);
         gettimeofday(&stop, NULL);
         double time_spent = (double) (stop.tv_usec - begin.tv_usec) / 1000000 + (double) (stop.tv_sec - begin.tv_sec);

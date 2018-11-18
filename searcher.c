@@ -43,7 +43,6 @@ int main (int argc, char const *argv[]) {
         rec.amount);
         // check if current record includes the given substring
         if (strstr(recStr, pattern) != NULL) {
-            // printf("%s\n", recStr);
             write(fdw, &rec, sizeof(rec));
         }
     }
@@ -61,6 +60,5 @@ int main (int argc, char const *argv[]) {
     write(fdw, &stat, sizeof(stat));
     // send signal to parent
     kill(rootPid, SIGUSR2);
-
     exit(0);
 }
