@@ -38,6 +38,9 @@ void readArguments(int argc, char const *argv[], int *height, char **datafile, c
             if (*height < 1) {
                 printf("Height should be at least 1\n");
                 exit(1);
+            } else if (*height > 5) {
+                printf("Height should be maximum 5\n");
+                exit(1);
             }
         }
         else if (strcmp(argv[i], "-d") == 0) {
@@ -55,7 +58,7 @@ void readArguments(int argc, char const *argv[], int *height, char **datafile, c
 }
 
 // read from pipe (where splitter/merger wrote) until there is nothing more to read
-// and write only records to file and print time statistics
+// and write only records to results.txt file and print time statistics
 void readAndWriteResults(int fd, int *count, double *minSearcher, double *maxSearcher, double *averageSearcher, \
                         int *searcherCounter, double *minSplMerg, double *maxSlpMerg, double *averageSplMerg, \
                         int *splMergCounter) {

@@ -57,7 +57,6 @@ int main(int argc, char const *argv[]) {
     if (pid == 0) {     // if child process
         close(fd[READ]);
         // make integers to strings and pass them to splitter/merger
-        // for convenience I assume height is maximum a 4 digit number
         char heightStr[4];
         sprintf(heightStr, "%d", height);
         char skewStr[4];
@@ -69,7 +68,7 @@ int main(int argc, char const *argv[]) {
         char pidStr[10];
         sprintf(pidStr, "%d", getppid());
         // position where each searcher will start to read the file
-        // position will change each time a splitter_merger is created
+        // position will change for each new splitter_merger
         char position[] = "0";
 
         if (skew == 0) {
@@ -107,6 +106,8 @@ int main(int argc, char const *argv[]) {
         wait(NULL);
     }
 
+    // fork new process for sort execution so that records are printed before
+    // statistics and other info
     pid_t pidSort = fork();
     if (pidSort == 0) {      // if child process
         // call sort for the results file that will print sorted results in console

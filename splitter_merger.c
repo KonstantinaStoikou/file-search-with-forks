@@ -50,8 +50,6 @@ int main (int argc, char const *argv[]) {
             if (pid == 0) {     // if child process
                 close(fd[READ]);
                 // make integers to strings and pass them to splitter/merger
-                // for convenience I assume numOfrecords is maximum a 10 digit number
-                // and position is maximum a 100 digit number
                 char positionStr[100];
                 sprintf(positionStr, "%d", position);
                 char fdwStr[10];
@@ -96,9 +94,6 @@ int main (int argc, char const *argv[]) {
         if (pid == 0) {     // if child process
             close(fd[READ]);
             // make integers to strings and pass them to splitter/merger
-            // for convenience I assume height is maximum a 4 digit number,
-            // numOfrecords is maximum a 10 digit number
-            // and position is maximum a 100 digit number
             char heightStr[4];
             sprintf(heightStr, "%d", height);
             char positionStr[100];
@@ -108,7 +103,7 @@ int main (int argc, char const *argv[]) {
 
             char numOfrecordsStr[10];
             if (skew == 0) {
-                // if last forked splitter_merger add to numOfrecords the remainder of the division
+                // if second forked splitter_merger add to numOfrecords the remainder of the division
                 if (i == 2) {
                     sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
                 } else {

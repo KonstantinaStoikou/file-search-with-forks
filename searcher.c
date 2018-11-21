@@ -30,7 +30,8 @@ int main (int argc, char const *argv[]) {
         exit(1);
     }
 
-    // check number of records
+    // start reading from file from given position and until 'numOfrecords' records
+    // have been read
     fseek(fpb, position, SEEK_SET);
 
     for(int i = 0; i < numOfrecords; i++) {
@@ -49,7 +50,8 @@ int main (int argc, char const *argv[]) {
     fclose(fpb);
 
     // when all records are passed to the pipe, pass one last record with
-    // negative id so that parent knows when records finish and statistics follow
+    // negative id so that parent knows when records finish and statistics (for
+    // current searcher) follow
     rec.custid = -1;
     write(fdw, &rec, sizeof(rec));
 

@@ -9,7 +9,7 @@
 // Break number of records for each searcher depending on searching method (skew or not)
 void breakNumOfRecords(int skew, int numOfrecords, char *numOfrecordsStr, int i, int start, int end, int mod, int sum) {
     if (skew == 0) {
-        // if last forked searcher (with skew) add to numOfrecords the remainder
+        // if second forked searcher (without skew) add to numOfrecords the remainder
         // of the division else leave numOfrecords as it is
         if (i == 2) {
             sprintf(numOfrecordsStr, "%d", numOfrecords + mod);
@@ -18,15 +18,18 @@ void breakNumOfRecords(int skew, int numOfrecords, char *numOfrecordsStr, int i,
         }
     }
     else {
-        // if first forked searcher (without skew)
+        // if first forked searcher (with skew) implement skew formula
         if (i == 1) {
             sprintf(numOfrecordsStr, "%d", numOfrecords * start / sum);
         } else {
+            // find sum of ids of forked searchers
             int endSum = 0;
             for (int j = 1; j <= end; j++) {
                 endSum += j;
             }
-            // if this is the last searcher created pass all remaining records
+            // if this is the last searcher created (which means the endsum will
+            // be the same as the sum of all ids of the searchers that should be
+            // created) pass all remaining records
             if (endSum == sum) {
                 int remaining = numOfrecords;
                 // for each searcher that has been created find how much records
@@ -44,21 +47,27 @@ void breakNumOfRecords(int skew, int numOfrecords, char *numOfrecordsStr, int i,
 }
 
 
+// Increase position for the next searcher to start reading from
 void increaseSearcherPosition(int skew, int *position, int numOfrecords, int start, int end, int sum) {
     if (skew == 0) {
         //the position will increase by the number of records
         *position = *position + numOfrecords * sizeof(Record);
     } else {
+        //the position will increase by the number of records (but number of records
+        // changes based on the skew formula)
         *position = *position + (numOfrecords * start / sum) * sizeof(Record);
     }
 }
 
 
+// Increase position for the next splitter/merger to start reading from
 void increaseSplitterMergerPosition(int skew, int *position, int numOfrecords,int start, int end, int sum) {
     if (skew == 0) {
         //the position will increase by the number of records
         *position = *position + numOfrecords * sizeof(Record);
     } else {
+        //the position will increase by the number of records (but number of records
+        // changes based on the skew formula)
         int rangeSum = 0;
         for (int j = start; j <= start - 1 + (end - start + 1) / 2; j++) {
             rangeSum += numOfrecords * j / sum;
@@ -102,7 +111,7 @@ void waitChildren(void) {
 
 
 void calculateNewRange(int i, int *newStart, int *newEnd, int start, int end) {
-    // i show process runs (the order it was forked)
+    // 'i' shows if this is first of second forked child (for current splitter/merger)
     if (i == 1) {
         *newStart = start;
         *newEnd = start - 1 + (end - start + 1) / 2;
@@ -114,7 +123,8 @@ void calculateNewRange(int i, int *newStart, int *newEnd, int start, int end) {
 
 void writeTimeToParent(int fdw, struct timeval begin, struct timeval stop) {
     // when all records are passed to the pipe, pass one last record with
-    // negative id so that parent knows when records finish and statistics follow
+    // negative id so that parent knows when records finish and statistics (for
+    // current splitter/merger) follow
     Record rec;
     rec.custid = -1;
     write(fdw, &rec, sizeof(rec));
