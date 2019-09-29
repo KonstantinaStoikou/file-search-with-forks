@@ -28,7 +28,7 @@ id, first name, last name, street, house number, city, postal code, salary (with
 
 ## Example ##
 ```
-$ ./myfind -h 4 -d test_files/Records100.bin
+$ ./myfind -h 4 -d test_files/Records100.bin -p ville 
 14196011 Bunn Vasilis  Fitzpatrick 160 Mechanicsville 31609 315.00   
 14713949 Scafidi Victor  Cooper 367 Mechanicsville 40233 911.00   
 14824935 Wilkins Anastasia  Meadows 293 Bakersville 45385 1253.00  
