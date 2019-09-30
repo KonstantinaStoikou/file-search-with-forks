@@ -11,8 +11,8 @@ Receives as parameters the name of the file, the range of records to keep splitt
 Forks first splitter/merger process. After all splitter/merger processes and searchers have finished and returned their results and running times to root, root calculates and prints statistics based on running times and forks a sort process (unix sort command) to sort returned records and print them. <br>
 
 
-**Input :** <br>
-Run the program as:
+## Input : ##
+Run the program as (order doesn't matter as long as flags are correct) :
 ```
 ./myfind -h height -d datafile -p pattern -s
 ```
